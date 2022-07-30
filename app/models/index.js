@@ -29,6 +29,8 @@ db.role = require("../models/roles.js")(sequelize, Sequelize);
 db.roles = require("../models/roles")(sequelize, DataTypes);
 db.user_roles = require("../models/user_roles")(sequelize, DataTypes);
 db.authuser = require("../models/authuser")(sequelize, DataTypes);
+db.subscription = require("../models/subscription")(sequelize, DataTypes);
+
 
 
 db.user_roles.belongsTo(db.user, {
