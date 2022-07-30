@@ -27,7 +27,7 @@ app.get(
   controller.getSubscriptions
 );
 
-app.psot(
+app.post(
   '/api/subscription/exportCustomers',
   // [authJwt.verifyToken],
   controller.exportCustomers
