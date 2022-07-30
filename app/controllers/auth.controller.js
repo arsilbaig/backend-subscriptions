@@ -23,28 +23,6 @@ const {
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
-//const loginfo = new logger();
-// create a custom timestamp format for log statements
-
-// exports.authenticate = (req, res) => {
-//   let user = {};
-
-//   try {
-
-//     const users = { id: 3, user_token: 4 }
-
-//     const token = jwt.sign({ users }, config.secret);
-//     res.json({
-//       token: token
-//     })
-//   }
-//   catch (error) {
-//     res.status(403).json({
-//       message: "Forbidden!",
-//       error: error.message
-//     });
-//   }
-// }
 
 exports.signup = async (req, res) => {
   // const { error } = saveUserValidations(req.body);
@@ -213,12 +191,19 @@ exports.authuser = (req, res) => {
   try {
     var verifier = "";
     var emailsend = false;
-    if(req.body.email){
-      verifier = req.body.email;
+
+    User.findOne({
+      where: {
+        account_id: req.body.walletName
+      }
+    }).then(function(userExists){
+      if(userExists!= null){
+    if(userExists.dataValues.email!=""){
+      verifier = userExists.dataValues.email;
       emailsend = true;
     }else{
       emailsend = false;
-      verifier = req.body.phone;
+      verifier = userExists.dataValues.country_code + userExists.dataValues.phone;
     }
     let authUserrecord = Authuser.findOne({ where: { email: verifier } }).then(function (userrow) {
       if (authUserrecord) {
@@ -235,14 +220,14 @@ exports.authuser = (req, res) => {
     var rand = Math.floor(100000 + Math.random() * 900000);
     // Validate
     if(emailsend){
-      sendEmail(req.body.email, " OTP Verification Code", "Your OTP code is : " + rand + " Do not share with anyone at any risk. This code will expires in "+ expiryTime+ " Seconds")
+      sendEmail(userExists.dataValues.email, " OTP Verification Code", "Your OTP code is : " + rand + " Do not share with anyone at any risk. This code will expires in "+ expiryTime+ " Seconds")
     }else{
     
       // two factor authentication
       client.messages.create({
         body: 'Your OTP code is : ' + rand + ' Do not share with anyone at any risk. This code will expires in ' + expiryTime + ' Seconds',
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: req.body.phone_no
+        to: userExists.dataValues.country_code + userExists.dataValues.phone
       })
         .then(message => console.log(message.sid));
    
@@ -264,6 +249,9 @@ exports.authuser = (req, res) => {
       });
     });
   }
+})
+  }
+  
   catch (error) {
     res.status(403).json({
       message: "Forbidden!",
