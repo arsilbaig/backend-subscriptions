@@ -25,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     business_email: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: true
     },
     image_url: {
       type: DataTypes.TEXT,
@@ -33,15 +33,15 @@ module.exports = function(sequelize, DataTypes) {
     },
     business_website_url: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: true
     },
     country_code: {
       type: DataTypes.STRING(10),
-      allowNull: false
+      allowNull: true
     },
     phone: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: true
     },
     status: {
       type: DataTypes.BOOLEAN,

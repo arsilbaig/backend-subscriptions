@@ -3,8 +3,8 @@ const config = require("../config/auth.config");
 const User = db.user;
 const Role = db.role;
 const UserRole = db.user_roles;
-const Agency = db.agency;
-const Provider = db.provider;
+const Authuser = db.authuser;
+
 
 const Op = db.Sequelize.Op;
 
@@ -12,10 +12,14 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 const logger = require("../../logs/logger.js");
 const nodemailer = require("nodemailer");
-
+require('dotenv').config();
 const {
   saveUserValidations,
 } = require('../validations/validation');
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = require('twilio')(accountSid, authToken);
 //const loginfo = new logger();
 // create a custom timestamp format for log statements
 
@@ -40,6 +44,8 @@ const {
 // }
 
 exports.signup = async (req, res) => {
+  const { error } = saveUserValidations(req.body);
+  if (error) return res.status(400).send(errorResponse(error.details[0].message, {}));
 await User.findOne({
   where: {
     account_id: req.body.walletName,
@@ -118,76 +124,175 @@ await User.findOne({
 };
 
 exports.signin = (req, res) => {
-  if(req.body.email!= null){
-    User.findOne({
+  if(req.body.walletName!= null){
+
+    let authUserPhone = Authuser.findOne({
       where: {
-        email: req.body.email
+        email: req.body.email,
+        otp: req.body.otp
+      }
+    }).then(function (userrow) {
+      if (authUserPhone) {
+        if (userrow != null) {
+          let dateNow = new Date();
+          let expiryDate = userrow.otp_expiry;
+          // User took too long to enter the code
+
+          if (expiryDate <= dateNow.getTime()) {
+            logger.info('OPT Verification', ' Your OTP code has been expired! Click below to resend.', ' at ', new Date().toJSON());
+            res.status(200).json({
+              status: false,
+              message: "Your OTP code has been expired! Click below to resend.",
+            });
+          } else {
+                     
+              User.findOne({
+                where: {
+                  account_id: req.body.walletName
+                }
+              })
+                .then(user => {
+                  const error = [];
+                  if (!user) {
+                    logger.error('Account error! ', 'check your wallet Name', ' at ', new Date().toJSON());
+                    error.push({
+                      type: 'walletName',
+                      message: 'Check your walletName'
+                    });
+            
+                    return res.status(200).send({ error });
+                  }
+            
+                  var token = jwt.sign({ id: user.id }, config.secret, {
+                    expiresIn: 31536000 // 24 hours
+                  });
+            
+                  var authorities = [];
+                  user.getRoles().then(roles => {
+                    for (let i = 0; i < roles.length; i++) {
+                      authorities.push(roles[i].name);
+                    }
+                    res.status(200).send({
+                      user: {
+                        id: user.id,
+                        from: 'live-db',
+                        role: authorities[0],
+                        data: {
+                          walletName: user.account_id,
+                          displayName: user.firstname + ' ' + user.lastname,
+                          photoURL: 'assets/images/avatars/profile.jpg',
+                          email: user.email,
+                        }
+                      },
+                      jwtAccessToken: token,
+                    });
+                  });
+                })
+                .catch(err => {
+                  res.status(500).send({ message: err.message });
+                });
+            }
+          }
       }
     })
-      .then(user => {
-        const error = [];
-        if (!user) {
-          logger.error('email error! ', 'check your email address', ' at ', new Date().toJSON());
-          error.push({
-            type: 'email',
-            message: 'Check your email address'
-          });
-  
-          return res.status(200).send({ error });
-        }
-  
-        var passwordIsValid = bcrypt.compareSync(
-          req.body.password,
-          user.password
-        );
-  
-        if (!passwordIsValid) {
-          logger.error('password error! ', 'check your password', ' at ', new Date().toJSON());
-  
-          error.push({
-            type: 'password',
-            message: 'Check your password'
-          });
-  
-          return res.status(200).send({ error });
-        }
-  
-  
-        var token = jwt.sign({ id: user.id }, config.secret, {
-          expiresIn: 31536000 // 24 hours
-        });
-  
-        var authorities = [];
-        user.getRoles().then(roles => {
-          for (let i = 0; i < roles.length; i++) {
-            authorities.push(roles[i].name);
-          }
-          res.status(200).send({
-            user: {
-              id: user.id,
-              from: 'live-db',
-              role: authorities[0],
-              data: {
-                username: user.username,
-                displayName: user.firstname + ' ' + user.lastname,
-                photoURL: 'assets/images/avatars/profile.jpg',
-                email: user.email,
-              }
-            },
-            access_token: token,
-          });
-        });
-      })
-      .catch(err => {
-        res.status(500).send({ message: err.message });
-      });
+
   }else{
-    logger.error('data error! ', 'No data provided', ' at ', new Date().toJSON());
-    res.status(400).send({ message: 'No data provided' });
-    
+    return result.status(400).send({
+      message: errorResponse("Account Id does not provided")
+    })
   }
   
 };
+
+
+exports.authuser = (req, res) => {
+  let authuser = {};
+  try {
+    var verifier = "";
+    var emailsend = false;
+    if(req.body.email){
+      verifier = req.body.email;
+      emailsend = true;
+    }else{
+      emailsend = false;
+      verifier = req.body.phone;
+    }
+    let authUserrecord = Authuser.findOne({ where: { email: verifier } }).then(function (userrow) {
+      if (authUserrecord) {
+        if (userrow != null) {
+          Authuser.destroy({
+            where: {
+              authuserId: userrow.authuserId
+            }
+          });
+        }
+      }
+    })
+    var expiryTime = 60;
+    // Validate
+    if(emailsend){
+      sendEmail(req.body.email, " OTP Verification Code", "Your OTP code is : " + rand + " Do not share with anyone at any risk. This code will expires in "+ expiryTime+ " Seconds")
+    }else{
+      var rand = Math.floor(100000 + Math.random() * 900000);
+      // two factor authentication
+      client.messages.create({
+        body: 'Your OTP code is : ' + rand + ' Do not share with anyone at any risk. This code will expires in ' + expiryTime + ' Seconds',
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: req.body.phone_no
+      })
+        .then(message => console.log(message.sid));
+   
+    }
+       var expiry_time;
+    expiry_time = new Date();
+    //expires in one minute.
+    expiry_time.setSeconds(expiry_time.getSeconds() + expiryTime);
+
+    authuser.email = verifier;
+    authuser.otp = rand;
+    authuser.otp_expiry = expiry_time;
+    // Save to MySQL database
+    Authuser.create(authuser).then(result => {
+      // send uploading message to client
+      res.status(200).json({
+        message: "saved and otp sent to = " + verifier,
+        customer: successResponse(result),
+      });
+    });
+  }
+  catch (error) {
+    res.status(403).json({
+      message: "Forbidden!",
+      error: errorResponse(error.message)
+    });
+  }
+}
+
+const sendEmail = (to, subject, message) => {
+  var smtpTr = nodemailer.createTransport({
+    host: config.SMTP_HOSTNAME_TEST,
+    port: config.SMTP_PORT_TEST,
+    auth: {
+      user: config.SMTP_USERNAME_TEST,
+      pass: config.SMTP_PASSWORD_TEST
+    }
+  });
+  var mailOptions = {
+    from: config.WEBTITLE + "<" + config.SMTP_USERNAME_TEST + ">",
+    to: to, // list of receivers
+    subject: subject, // Subject line
+    text: message // plain text body
+  }
+  smtpTr.sendMail(mailOptions, function (err, data) {
+    if (err) {
+      logger.error('Email failed! ', to +' Email not sent', ' at ', new Date().toJSON());
+      console.log('Email not sent!');
+    } else {
+      logger.error('Email sent! ', to +' Email sent successfully', ' at ', new Date().toJSON());
+      console.log('Email sent successfully');
+    }
+  });
+}
 
 exports.signInWithToken = (req, res) => {
   User.findOne({

@@ -14,15 +14,15 @@ const saveUserValidations = (data) => {
             tlds: {
                 allow: ['com', 'net', 'tv', 'id']
             }
-        }).required(),
+        }),
         email: Joi.string().email({
             minDomainSegments: 2,
             tlds: {
                 allow: ['com', 'net', 'tv', 'id']
             }
         }),
-        image_url: Joi.string().required(),
-        business_website_url: Joi.string().required(),
+        image_url: Joi.string(),
+        business_website_url: Joi.string(),
         phone: Joi.string(),
         countryCode: Joi.string(),
         role: Joi.number().required(),
