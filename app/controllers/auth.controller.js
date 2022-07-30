@@ -179,6 +179,12 @@ exports.signin = (req, res) => {
                   res.status(500).send({ message: err.message });
                 });
             }
+          }else{
+            logger.info('OPT Verification', ' Your OTP code is not correct.', ' at ', new Date().toJSON());
+            res.status(200).json({
+              status: false,
+              message: "something went wrong.",
+            });
           }
       }
     })
