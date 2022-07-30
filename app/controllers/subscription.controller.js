@@ -93,3 +93,39 @@ exports.getSubscriptions = (req, res) => {
             });
         });
 }
+
+exports.exportCustomers = (req, res) => {
+    let customers = {};
+    let subscriptionOrders = {};
+  
+    try {
+        
+        // Building export Customers object from upoading request's body
+        var userIds = req.body.users;
+        var subsId = req.body.subscriptionId;
+       if(subsId !=null){
+        for (var i in val) {
+            customers.push({ 'user_id': userIds[i].userId, 'subscription_id': subsId ,'status': 0});
+            subscriptionOrders.user_id = customers[i].user_id;
+            subscriptionOrders.subscription_id = customers[i].subscription_id;
+            await SubscriptionOrder.create(subscriptionOrders);
+        }
+       }
+        // Save to MySQL database
+        Subscription.create(customers).then(result => {
+          logger.info('Subscription Created', req.body.userId +' has been susbcribe successfully', ' at ', new Date().toJSON());
+            // send uploading message to client
+            res.status(200).json({
+                message: "Subscription Create Successfully !",
+                subscription: successResponse(result),
+            });
+        });
+    } catch (error) {
+      
+        res.status(500).json({
+            message: "Fail!",
+            error: errorResponse(error.message)
+        });
+    }
+  }
+  

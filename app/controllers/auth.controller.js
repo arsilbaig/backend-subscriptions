@@ -402,7 +402,6 @@ exports.signInWithToken = async (req, res) => {
     })
 }
 
-
 exports.impersonate = (req, res) => {
 
   if(req.body.provider_id > 0 && req.body.provider_id!=undefined){
@@ -675,4 +674,35 @@ exports.profileUpdate = (req, res) => {
     }).catch(err => {
       res.status(500).send({ message: err.message });
     });
+}
+
+
+exports.getAllCustomers = (req, res) => {
+  const data = [];
+  User.findAll({
+    where: {
+      status: 0
+    },
+  })
+      .then(users => {
+          logger.info("Customers", "getAllCustomers", "Info", "Successfully get all customers");
+          for (var i in users) {
+              data.push({ 
+              'userId': users[i].id,
+              'userName': users[i].firstname +" "+users[i].lastname,
+              'accountId': users[i].account_id,
+              'image_url': users[i].image_url
+          });
+          }
+          res.status(200).json({
+              message: "Operation perfom successfully",
+              users: data == null ? {} : data
+          });
+      })
+      .catch(error => {
+          res.status(500).json({
+              message: "Error!",
+              error: error.message
+          });
+      });
 }

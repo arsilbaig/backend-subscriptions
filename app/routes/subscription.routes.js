@@ -26,5 +26,11 @@ app.get(
   // [authJwt.verifyToken],
   controller.getSubscriptions
 );
+
+app.psot(
+  '/api/subscription/exportCustomers',
+  // [authJwt.verifyToken],
+  controller.exportCustomers
+);
   // app.post("/api/subscription/create", controller.create);
 };
