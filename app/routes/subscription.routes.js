@@ -13,8 +13,18 @@ module.exports = function (app) {
 
   app.post(
     '/api/subscription/create',
-    [authJwt.verifyToken],
+    // [authJwt.verifyToken],
     controller.create
+);
+app.get(
+  '/api/subscription/getSubscriptionById/:id',
+  // [authJwt.verifyToken],
+  controller.getSubscriptionById
+);
+app.get(
+  '/api/subscription/getSubscriptions',
+  // [authJwt.verifyToken],
+  controller.getSubscriptions
 );
   // app.post("/api/subscription/create", controller.create);
 };
