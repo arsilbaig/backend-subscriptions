@@ -327,6 +327,18 @@ const updateProviderValidations = (data) => {
     return schema.validate(data);
 };
 
+const saveSubsriptionValidations = (data) => {
+    const schema = Joi.object({
+        userId: Joi.string().required(),
+        subName: Joi.string().required(),
+        withdrawAmount: Joi.string().required(),
+        frequency: Joi.string().required(),
+        image: Joi.string().required(),
+        description: Joi.string().required(),
+        terms: Joi.string().required(),
+    });
+    return schema.validate(data);
+};
 
 module.exports = {
     saveUserValidations,
@@ -351,4 +363,5 @@ module.exports = {
     updateMessageValidations,
     saveProviderValidations,
     updateProviderValidations,
+    saveSubsriptionValidations,
 }
