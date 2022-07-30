@@ -328,7 +328,7 @@ const sendEmail = (to, subject, message) => {
   });
 }
 
-exports.signInWithToken = (req, res) => {
+exports.signInWithToken = async (req, res) => {
 
   let token = "";
   if(typeof req.headers['authorization'] !== 'undefined'){
@@ -337,9 +337,7 @@ exports.signInWithToken = (req, res) => {
   }else{
     token = false;
   }
- // let token = req.headers['authorization'].split(' ')[1];
- 
-  
+
   if (!token) {
     logger.error('token error ', 'No token provided', ' at ', new Date().toJSON());
     return res.status(403).send({
@@ -362,22 +360,29 @@ exports.signInWithToken = (req, res) => {
     var rtoken = jwt.sign({ id: userId }, config.secret, {
       expiresIn: 31536000 // 24 hours
     });
+    console.log(userId);
     User.findOne({
       where:{
         id: userId
       }
-    }).then(function(user){
+    }).then(async function(user){
+      if(user!= null){
       var authorities = [];
-          user.getRoles().then(roles => {
-            for (let i = 0; i < roles.length; i++) {
-              authorities.push(roles[i].name);
+            const roleid = await getUserRole(userId);
+            let rolename ="";
+            if(roleid && roleid==1){
+              rolename = 'merchant';
+            }else if(roleid && roleid==2){
+              rolename = 'customer';
+            }else{
+              rolename= '';
             }
             logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
             res.status(200).send({
               user: {
                 id: user.id,
                 from: 'live-db',
-                role: authorities[0],
+                role: rolename,
                 walletName: user.account_id,
                 displayName: user.firstname + ' ' + user.lastname,
                 image_url: user.image_url,
@@ -389,13 +394,12 @@ exports.signInWithToken = (req, res) => {
               jwtAccessToken: token,
               refreshToken: rtoken,
             });
-          
-        });
-      
-      });
-    }).catch(err => {
-      res.status(500).send({ message: err.message });
-    });
+          }else{
+            res.status(400).send({ message: "user account not found"});
+          }
+      })
+   
+    })
 }
 
 
