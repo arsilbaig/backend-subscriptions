@@ -21,7 +21,7 @@ module.exports = function (app) {
     controller.signup
   );
   
-  app.post(
+  app.get(
     "/users/customer",
     controller.signInWithToken
   );
