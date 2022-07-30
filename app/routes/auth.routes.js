@@ -22,8 +22,16 @@ module.exports = function (app) {
   );
   
   app.get(
-    "/users/customer",
+    "/api/users/customer",
     controller.signInWithToken
+  );
+  app.get(
+    "/api/users/marchant ",
+    controller.signInWithToken
+  );
+    app.get(
+    "/api/auth/getAllCustomers",
+    controller.getAllCustomers
   );
 
   app.put(
