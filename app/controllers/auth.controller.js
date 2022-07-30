@@ -259,7 +259,7 @@ exports.authuser = async (req, res) => {
       email: verifier,
       phone: verifier,
       role:rolename,
-      walletID: userExists.dataValues.account_id
+      walletId: userExists.dataValues.account_id
     };
     // Save to MySQL database
     Authuser.create(authuser).then(result => {
