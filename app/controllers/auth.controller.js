@@ -228,7 +228,7 @@ exports.authuser = async (req, res) => {
         }
       }
     })
-    var expiryTime = 60;
+    var expiryTime = 400;
     var rand = Math.floor(100000 + Math.random() * 900000);
     // Validate
     if(emailsend){
