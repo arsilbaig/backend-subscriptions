@@ -22,8 +22,7 @@ module.exports = function (app) {
   );
   
   app.post(
-    "/api/auth/signInWithToken",
-    [authJwt.verifyToken],
+    "/users/customer",
     controller.signInWithToken
   );
 

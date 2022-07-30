@@ -329,57 +329,73 @@ const sendEmail = (to, subject, message) => {
 }
 
 exports.signInWithToken = (req, res) => {
-  User.findOne({
-    where: { id: req.userId }
-  }).then(function (user) {
-    var authorities = [];
-    user.getRoles().then(roles => {
-      for (let i = 0; i < roles.length; i++) {
-        authorities.push(roles[i].name);
-      }
-      Agency.findOne({
-        attributes: ['agency_id'],
-        where:  {
-          user_id: user.id
-        }
-      }).then(function(agencyUser){
-        if(agencyUser!= null){
-          res.status(200).send({
-            user: {
-              id: user.id,
-              from: 'live-db',
-              agency_id: agencyUser.dataValues.agency_id,
-              role: authorities[0],
-              data: {
-                username: user.username,
-                displayName: user.firstname + ' ' + user.lastname,
-                photoURL: 'assets/images/avatars/profile.jpg',
-                email: user.email,
-              }
-            },
-            access_token: req.headers['authorization'],
-          });
-        }else{
-          res.status(200).send({
-            user: {
-              id: user.id,
-              from: 'live-db',
-              role: authorities[0],
-              data: {
-                username: user.username,
-                displayName: user.firstname + ' ' + user.lastname,
-                photoURL: 'assets/images/avatars/profile.jpg',
-                email: user.email,
-              }
-            },
-            access_token: req.headers['authorization'],
-          });
-        }
-      });
+
+  let token = "";
+  if(typeof req.headers['authorization'] !== 'undefined'){
+   token = req.headers['authorization'].split(' ')[1];
+    req.headers['authorization'] = token;
+  }else{
+    token = false;
+  }
+ // let token = req.headers['authorization'].split(' ')[1];
+ 
+  
+  if (!token) {
+    logger.error('token error ', 'No token provided', ' at ', new Date().toJSON());
+    return res.status(403).send({
+      message: "No token provided!"
     });
-  }).catch(err => {
-    res.status(500).send({ message: err.message });
-  });
+  }
+
+  jwt.verify(token, config.secret, (err, decoded) => {
+    if (err) {
+      logger.error('Unauthorized ', 'Unauthorized User', ' at ', new Date().toJSON());
+      return res.status(401).send({
+        message: "Unauthorized!"
+      });
+    }
+    let userId = decoded.id;
+            
+    var token = jwt.sign({ id: userId }, config.secret, {
+      expiresIn: 31536000 // 24 hours
+    });
+    var rtoken = jwt.sign({ id: userId }, config.secret, {
+      expiresIn: 31536000 // 24 hours
+    });
+    User.findOne({
+      where:{
+        id: userId
+      }
+    }).then(function(user){
+      var authorities = [];
+          user.getRoles().then(roles => {
+            for (let i = 0; i < roles.length; i++) {
+              authorities.push(roles[i].name);
+            }
+            logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
+            res.status(200).send({
+              user: {
+                id: user.id,
+                from: 'live-db',
+                role: authorities[0],
+                walletName: user.account_id,
+                displayName: user.firstname + ' ' + user.lastname,
+                image_url: user.image_url,
+                business_email: user.business_email,
+                business_website_url: user.business_website_url,
+                phone: user.country_code + user.phone,
+                email: user.email,
+              },
+              jwtAccessToken: token,
+              refreshToken: rtoken,
+            });
+          
+        });
+      
+      });
+    }).catch(err => {
+      res.status(500).send({ message: err.message });
+    });
 }
 
 
