@@ -147,6 +147,10 @@ exports.signin = (req, res) => {
                   var token = jwt.sign({ id: user.id }, config.secret, {
                     expiresIn: 31536000 // 24 hours
                   });
+
+                  var rtoken = jwt.sign({ id: user.id }, config.secret, {
+                    expiresIn: 31536000 // 24 hours
+                  });
             
                   var authorities = [];
                   user.getRoles().then(roles => {
@@ -158,14 +162,16 @@ exports.signin = (req, res) => {
                         id: user.id,
                         from: 'live-db',
                         role: authorities[0],
-                        data: {
-                          walletName: user.account_id,
-                          displayName: user.firstname + ' ' + user.lastname,
-                          photoURL: 'assets/images/avatars/profile.jpg',
-                          email: user.email,
-                        }
+                        walletName: user.account_id,
+                        displayName: user.firstname + ' ' + user.lastname,
+                        image_url: user.image_url,
+                        business_email: user.business_email,
+                        business_website_url: user.business_website_url,
+                        phone: user.country_code + user.phone,
+                        email: user.email,
                       },
                       jwtAccessToken: token,
+                      refreshToken: rtoken,
                     });
                   });
                 })
@@ -186,17 +192,17 @@ exports.signin = (req, res) => {
 };
 
 
-exports.authuser = (req, res) => {
+exports.authuser = async (req, res) => {
   let authuser = {};
   try {
     var verifier = "";
     var emailsend = false;
 
-    User.findOne({
+  await  User.findOne({
       where: {
         account_id: req.body.walletName
       }
-    }).then(function(userExists){
+    }).then(async function(userExists){
       if(userExists!= null){
     if(userExists.dataValues.email!=""){
       verifier = userExists.dataValues.email;
@@ -240,12 +246,26 @@ exports.authuser = (req, res) => {
     authuser.email = verifier;
     authuser.otp = rand;
     authuser.otp_expiry = expiry_time;
+    const roleid = await getUserRole(userExists.dataValues.id);
+    let rolename ="";
+    if(roleid && roleid==1){
+      rolename = 'merchant';
+    }else if(roleid && roleid==2){
+      rolename = 'customer';
+    }else{
+      rolename= '';
+    }
+    let responseData = {
+      email: verifier,
+      phone: verifier,
+      role:rolename,
+      walletID: userExists.dataValues.account_id
+    };
     // Save to MySQL database
     Authuser.create(authuser).then(result => {
       // send uploading message to client
       res.status(200).json({
-        message: "saved and otp sent to = " + verifier,
-        customer: successResponse(result),
+        data: responseData,
       });
     });
   }
@@ -259,6 +279,22 @@ exports.authuser = (req, res) => {
     });
   }
 }
+
+const getUserRole = async (userId) =>{
+  return new Promise(async function (resolve, reject) {
+    await UserRole.findOne({
+        where: {
+          userId: userId
+        }
+      }).then(function(userroledata){
+        if(userroledata!= null){
+          resolve(userroledata.dataValues.roleId)
+        }else{
+          resolve(false);
+        }
+      })
+})
+} 
 
 const sendEmail = (to, subject, message) => {
   var smtpTr = nodemailer.createTransport({
