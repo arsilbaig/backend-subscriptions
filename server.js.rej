@@ -1,0 +1,9 @@
+diff a/server.js b/server.js	(rejected hunks)
+@@ -16,7 +16,6 @@
+ 
+ const hostname = process.env.CLIENT_HOST;
+ 
+-const hostname = 'falcon.messagepoint.tv';
+ const httpPort = 3053;
+ const httpsPort = 3054;
+ 
