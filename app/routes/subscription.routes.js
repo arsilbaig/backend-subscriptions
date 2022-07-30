@@ -27,10 +27,10 @@ app.get(
   controller.getSubscriptions
 );
 
-app.post(
-  '/api/subscription/exportCustomers',
-  // [authJwt.verifyToken],
-  controller.exportCustomers
-);
+// app.post(
+//   '/api/subscription/exportCustomers',
+//   // [authJwt.verifyToken],
+//   controller.exportCustomers
+// );
   // app.post("/api/subscription/create", controller.create);
 };
