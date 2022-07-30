@@ -5,7 +5,10 @@ const Role = db.role;
 const UserRole = db.user_roles;
 const Authuser = db.authuser;
 
-
+const {
+  successResponse,
+  errorResponse
+} = require('../common/response');
 const Op = db.Sequelize.Op;
 
 var jwt = require("jsonwebtoken");
@@ -44,8 +47,8 @@ const client = require('twilio')(accountSid, authToken);
 // }
 
 exports.signup = async (req, res) => {
-  const { error } = saveUserValidations(req.body);
-  if (error) return res.status(400).send(errorResponse(error.details[0].message, {}));
+  // const { error } = saveUserValidations(req.body);
+  // if (error) return res.status(400).send(errorResponse(error.details[0].message, {}));
 await User.findOne({
   where: {
     account_id: req.body.walletName,
@@ -222,18 +225,19 @@ exports.authuser = (req, res) => {
         if (userrow != null) {
           Authuser.destroy({
             where: {
-              authuserId: userrow.authuserId
+              authuser_id: userrow.authuser_id
             }
           });
         }
       }
     })
     var expiryTime = 60;
+    var rand = Math.floor(100000 + Math.random() * 900000);
     // Validate
     if(emailsend){
       sendEmail(req.body.email, " OTP Verification Code", "Your OTP code is : " + rand + " Do not share with anyone at any risk. This code will expires in "+ expiryTime+ " Seconds")
     }else{
-      var rand = Math.floor(100000 + Math.random() * 900000);
+    
       // two factor authentication
       client.messages.create({
         body: 'Your OTP code is : ' + rand + ' Do not share with anyone at any risk. This code will expires in ' + expiryTime + ' Seconds',

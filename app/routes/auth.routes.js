@@ -34,6 +34,7 @@ module.exports = function (app) {
   );
 
   app.post("/api/auth/signin", controller.signin);
+  app.post("/api/auth/authuser", controller.authuser);
   app.post("/api/auth/impersonate", controller.impersonate);
 
   
