@@ -97,10 +97,9 @@ exports.getSubscriptions = (req, res) => {
                     'total_subscriber': subscription[i].subscription_orders.length,
                 });
             }
-            res.status(200).json({
-                message: "Successfully All Subscriptions",
-                subscription: data == null ? {} : data
-            });
+            res.status(200).json(
+               data 
+            );
         })
         .catch(error => {
             res.status(500).json({
