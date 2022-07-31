@@ -36,5 +36,11 @@ module.exports = function (app) {
     [authJwt.verifyToken],
     controller.exportCustomers
   );
+
+  app.post(
+    '/api/subscription/buySubscription',
+    [authJwt.verifyToken],
+    controller.buySubscription
+  );
   // app.post("/api/subscription/create", controller.create);
 };
