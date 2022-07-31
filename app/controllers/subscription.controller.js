@@ -1,6 +1,7 @@
 const db = require("../models");
 const Subscription = db.subscription;
 const SubscriptionOrder = db.subscription_order;
+const CustomerSubscriptions = db.customer_subscriptions;
 const { successResponse, errorResponse } = require('../common/response');
 const Op = db.Sequelize.Op;
 const logger = require("../../logs/logger.js");
@@ -161,4 +162,52 @@ exports.getAllMarketPlace = (req, res) => {
                 error: error.message
             });
         });
+}
+
+
+exports.buySubscription = (req, res) => {
+    let customerCubscriptions = {};
+    const data = [];
+    try {
+        // Building subscription Orders object from upoading request's body
+        customerCubscriptions.user_id = req.userId,
+        customerCubscriptions.subscription_id = req.body.subscription_id,
+        customerCubscriptions.quantity = 1,
+
+        // Save to MySQL database
+        CustomerSubscriptions.create(customerCubscriptions).then(result => {
+
+            logger.info('Subscription Orders Created', req.userId + ' has been susbcribe successfully', ' at ', new Date().toJSON());
+            // send uploading message to client
+            CustomerSubscriptions.findAll({
+                where: {
+                    subscription_id: req.body.subscription_id,
+                    user_id : req.userId
+                  },
+                include: [{
+                    model: Subscription,
+                    as: "subscription"
+                }]
+            }).then(val => {
+                for (var i in val) {
+                    data.push({
+                        'subscriptionId': val[i].subscription.dataValues.subscription_id,
+                        'sub_name': val[i].subscription.dataValues.sub_name,
+                        'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
+                        'frequency': val[i].subscription.dataValues.frequency,
+                        'image': val[i].subscription.dataValues.image
+                    });
+                }
+                res.status(200).json({
+                    subscription: data,
+                });
+            })
+        });
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Fail!",
+            error: errorResponse(error.message)
+        });
+    }
 }
