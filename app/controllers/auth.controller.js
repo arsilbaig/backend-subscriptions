@@ -171,7 +171,7 @@ exports.signin = (req, res) => {
                       email: user.email,
                     },
                     jwtAccessToken: token,
-                    refreshToken: rtoken,
+                    jwtRefreshToken: rtoken,
                   });
                 });
               })

@@ -32,7 +32,6 @@ const saveUserValidations = (data) => {
 };
 const saveSubsriptionValidations = (data) => {
     const schema = Joi.object({
-        userId: Joi.string().required(),
         subName: Joi.string().required(),
         withdrawAmount: Joi.number().required(),
         frequency: Joi.string().required(),

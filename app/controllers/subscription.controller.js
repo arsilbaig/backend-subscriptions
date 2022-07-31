@@ -5,16 +5,19 @@ const { successResponse, errorResponse } = require('../common/response');
 const Op = db.Sequelize.Op;
 const logger = require("../../logs/logger.js");
 const { saveSubsriptionValidations } = require('../validations/validation');
+const {authJwt} = require("../middleware");
 
 exports.create = (req, res) => {
     let subscription = {};
+
+   
 
     try {
         // Validate
         const { error } = saveSubsriptionValidations(req.body);
         if (error) return res.status(400).send(errorResponse(error.details[0].message, {}));
         // Building Subscriptin object from upoading request's body
-        subscription.user_id = req.body.userId,
+            subscription.user_id = req.userId,
             subscription.sub_name = req.body.subName,
             subscription.withdraw_amount = req.body.withdrawAmount,
             subscription.frequency = req.body.frequency,
@@ -65,7 +68,7 @@ exports.getSubscriptions = (req, res) => {
     const data = [];
     Subscription.findAll({
         where: {
-            user_id: req.params.id
+            user_id: req.userId
           },
         include: [{
             model: SubscriptionOrder,
