@@ -2,6 +2,7 @@ const db = require("../models");
 const Subscription = db.subscription;
 const SubscriptionOrder = db.subscription_order;
 const CustomerSubscriptions = db.customer_subscriptions;
+const UserRole = db.user_roles;
 const { successResponse, errorResponse } = require('../common/response');
 const Op = db.Sequelize.Op;
 const logger = require("../../logs/logger.js");
@@ -212,40 +213,63 @@ exports.buySubscription = (req, res) => {
         });
     }
 }
-
-exports.mySubscription = (req, res) => {
+const getUserRole = async (userId) => {
+    return new Promise(async function (resolve, reject) {
+      await UserRole.findOne({
+        where: {
+          userId: userId
+        }
+      }).then(function (userroledata) {
+        if (userroledata != null) {
+          resolve(userroledata.dataValues.roleId)
+        } else {
+          resolve(false);
+        }
+      })
+    })
+  }
+exports.mySubscription = async (req, res) => {
     const data = [];
     try {
-              // send uploading message to client
-            CustomerSubscriptions.findAll({
-                where: {
-                    user_id : req.userId
-                  },
-                include: [{
-                    model: Subscription,
-                    as: "subscription"
-                }]
-            }).then(val => {
-                for (var i in val) {
-                    let status_text;
-                    if(val[i].subscription.dataValues.status==0){
-                        status_text = "active";
-                    }else if(val[i].subscription.dataValues.status==1){
-                        status_text = "cancelled";
-                    }
-                    data.push({
-                        'subscriptionId': val[i].subscription.dataValues.subscription_id,
-                        'sub_name': val[i].subscription.dataValues.sub_name,
-                        'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
-                        'frequency': val[i].subscription.dataValues.frequency,
-                        'image': val[i].subscription.dataValues.image,
-                        'status': status_text
-                    });
-                }
-                res.status(200).json({
-                    my_subscription: data,
-                });
+        const roleid = await getUserRole(req.userId);
+        
+        if (roleid && roleid == 1) {
+            res.status(400).json({
+                error: "Merchant doest not have its own subscriptions",
             });
+        } else if (roleid && roleid == 2) {
+           // send uploading message to client
+        await   CustomerSubscriptions.findAll({
+            where: {
+                user_id : req.userId,
+              },
+            include: [{
+                model: Subscription,
+                as: "subscription"
+            }]
+        }).then(val => {
+            for (var i in val) {
+                let status_text;
+                if(val[i].subscription.dataValues.status==0){
+                    status_text = "active";
+                }else if(val[i].subscription.dataValues.status==1){
+                    status_text = "cancelled";
+                }
+                data.push({
+                    'subscriptionId': val[i].subscription.dataValues.subscription_id,
+                    'sub_name': val[i].subscription.dataValues.sub_name,
+                    'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
+                    'frequency': val[i].subscription.dataValues.frequency,
+                    'image': val[i].subscription.dataValues.image,
+                    'status': status_text
+                });
+            }
+            res.status(200).json({
+                my_subscription: data,
+            });
+        });
+        } 
+             
     } catch (error) {
 
         res.status(500).json({
