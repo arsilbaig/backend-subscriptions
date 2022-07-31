@@ -154,10 +154,9 @@ exports.getAllMarketPlace = (req, res) => {
                     'image': subscription[i].image
                 });
             }
-            res.status(200).json({
-                message: "Successfully All Market Places",
-                subscription: data == null ? {} : data
-            });
+            res.status(200).json(
+                data == null ? {} : data
+            );
         })
         .catch(error => {
             res.status(500).json({
