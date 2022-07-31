@@ -78,6 +78,14 @@ exports.getSubscriptions = (req, res) => {
         .then(subscription => {
             logger.info("Subscription", "getSubscriptions", "Info", "Successfully All Subscriptions");
             for (var i in subscription) {
+                let status_text;
+                if(subscription[i].status==0){
+                    status_text = "active";
+                }else if(subscription[i].status==1){
+                    status_text = "ended";
+                }else{
+                    status_text = "draft"
+                }
                 data.push({
                     'subscriptionId': subscription[i].subscription_id,
                     'userId': subscription[i].user_id,
@@ -85,7 +93,7 @@ exports.getSubscriptions = (req, res) => {
                     'withdraw_amount': subscription[i].withdraw_amount,
                     'frequency': subscription[i].frequency,
                     'image': subscription[i].image,
-                    'status': subscription[i].status,
+                    'status': status_text,
                     'total_subscriber': subscription[i].subscription_orders.length,
                 });
             }
