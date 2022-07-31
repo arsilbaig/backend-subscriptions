@@ -48,25 +48,43 @@ exports.signup = async (req, res) => {
       })
         .then(user => {
           if (req.body.role) {
+            var token = jwt.sign({ id: user.id }, config.secret, {
+              expiresIn: 31536000 // 24 hours
+            });
+
+            var rtoken = jwt.sign({ id: user.id }, config.secret, {
+              expiresIn: 31536000*2 // 24 hours
+            });
+            let rolename = "";
+            if (req.body.role && req.body.role == 1) {
+              rolename = 'merchant';
+            } else if (req.body.role && req.body.role == 2) {
+              rolename = 'customer';
+            } else {
+              rolename = '';
+            }
             Role.findAll({
               where: {
                 id: req.body.role
               }
             }).then(roles => {
               user.setRoles(roles).then(() => {
+              
                 return res.json({
-                  firstName: req.body.firstName,
-                  lastName: req.body.lastName,
-                  walletName: req.body.walletName,
-                  countryCode: req.body.countryCode,
-                  email: req.body.email,
-                  business_email: req.body.business_email,
-                  image_url: req.body.image_url,
-                  business_website_url: req.body.business_website_url,
-                  phone: req.body.phone,
-                  role: req.body.role,
-                  status: 0,
-                  message: "User registered successfully!"
+                  user: {
+                    id: user.id,
+                    from: 'live-db',
+                    role: rolename,
+                    walletName: req.body.walletName,
+                    displayName:  req.body.firstName + ' ' + req.body.lastName,
+                    image_url: req.body.image_url?req.body.image_url:"",
+                    business_email: req.body.business_email?req.body.business_email:"",
+                    business_website_url: req.body.business_website_url?req.body.business_website_url:"",
+                    phone: req.body.phone ? req.body.countryCode + req.body.phone:"",
+                    email: req.body.email,
+                  },
+                  jwtAccessToken: token,
+                  jwtRefreshToken: rtoken,
                 });
               });
             });
@@ -74,19 +92,28 @@ exports.signup = async (req, res) => {
             // user role = 1
             logger.info('User Registered! ', req.body.email + ' registered successfully', ' at ', new Date().toJSON());
             user.setRoles([1]).then(() => {
+              var token = jwt.sign({ id: user.id }, config.secret, {
+                expiresIn: 31536000 // 24 hours
+              });
+
+              var rtoken = jwt.sign({ id: user.id }, config.secret, {
+                expiresIn: 31536000*2 // 24 hours
+              });
               return res.json({
-                firstname: req.body.firstName,
-                lastname: req.body.lastName,
-                account_id: req.body.walletName,
-                country_code: req.body.countryCode,
-                email: req.body.email,
-                business_email: req.body.business_email,
-                image_url: req.body.image_url,
-                business_website_url: req.body.business_website_url,
-                phone: req.body.phone,
-                role: req.body.role,
-                status: 0,
-                message: "User registered successfully!"
+                user: {
+                  id: user.id,
+                  from: 'live-db',
+                  role: rolename,
+                  walletName: req.body.walletName,
+                  displayName:  req.body.firstName + ' ' + req.body.lastName,
+                  image_url: req.body.image_url?req.body.image_url:"",
+                  business_email: req.body.business_email?req.body.business_email:"",
+                  business_website_url: req.body.business_website_url?req.body.business_website_url:"",
+                  phone: req.body.phone ? req.body.countryCode + req.body.phone:"",
+                  email: req.body.email,
+                },
+                jwtAccessToken: token,
+                jwtRefreshToken: rtoken,
               });
             });
           }
