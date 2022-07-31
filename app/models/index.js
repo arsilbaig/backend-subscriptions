@@ -59,6 +59,8 @@ db.subscription.hasMany(db.subscription_order, { as: "subscription_orders", fore
 
 db.customer_subscriptions.belongsTo(db.subscription, { as: "subscription", foreignKey: "subscription_id"});
 db.subscription.hasMany(db.customer_subscriptions, { as: "customer_subscriptions", foreignKey: "subscription_id"});
+db.customer_subscriptions.belongsTo(db.user, { as: "user", foreignKey: "user_id"});
+db.user.hasMany(db.customer_subscriptions, { as: "customer_subscriptions", foreignKey: "user_id"});
 db.ROLES = ["merchant", "customer"];
 
 module.exports = db;

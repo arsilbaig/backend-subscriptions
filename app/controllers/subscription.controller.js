@@ -2,6 +2,7 @@ const db = require("../models");
 const Subscription = db.subscription;
 const SubscriptionOrder = db.subscription_order;
 const CustomerSubscriptions = db.customer_subscriptions;
+const User =  db.user;
 const UserRole = db.user_roles;
 const { successResponse, errorResponse } = require('../common/response');
 const Op = db.Sequelize.Op;
@@ -277,4 +278,34 @@ exports.mySubscription = async (req, res) => {
             error: errorResponse(error.message)
         });
     }
+}
+
+exports.getSubscriptionsOrderBySubscriptionId = (req, res) => {
+    const data = [];
+    db.sequelize.query(
+        `SELECT u.* FROM users u
+        LEFT JOIN subscription_order so 
+         on(u.id = so.user_id)
+        where  so.subscription_id=`+req.body.subscription_id, { type: db.sequelize.QueryTypes.SELECT }
+        )
+        .then(userInfo => {
+            if(userInfo.length>0){
+                res.status(200).json(
+                    userInfo == null ? {} : userInfo
+                 );
+            }else{
+                res.status(400).json({
+                    message: "Error!",
+                    error: "No customer is assigned to this subscription."
+                });
+            }
+            
+            
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: "Error!",
+                error: error.message
+            });
+        });
 }

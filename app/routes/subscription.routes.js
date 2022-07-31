@@ -30,6 +30,11 @@ module.exports = function (app) {
     [authJwt.verifyToken],
     controller.mySubscription
   );
+  app.get(
+    '/api/subscription/exportusers',
+    [authJwt.verifyToken],
+    controller.getSubscriptionsOrderBySubscriptionId
+  );
   
   app.get(
     '/api/subscription/getAllMarketPlace',
