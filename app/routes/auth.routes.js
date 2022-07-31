@@ -22,11 +22,11 @@ module.exports = function (app) {
   );
   
   app.get(
-    "/api/users/customer",
+    "/users/customer",
     controller.signInWithToken
   );
   app.get(
-    "/api/users/marchant ",
+    "/users/marchant",
     controller.signInWithToken
   );
     app.get(

@@ -22,15 +22,20 @@ app.get(
   controller.getSubscriptionById
 );
 app.get(
-  '/api/subscription/getSubscriptions',
+  '/api/subscription/getSubscriptions/:id',
   // [authJwt.verifyToken],
   controller.getSubscriptions
 );
+app.get(
+  '/api/subscription/getAllMarketPlace',
+  // [authJwt.verifyToken],
+  controller.getAllMarketPlace
+);
 
-// app.post(
-//   '/api/subscription/exportCustomers',
-//   // [authJwt.verifyToken],
-//   controller.exportCustomers
-// );
+app.post(
+  '/api/subscription/exportCustomers',
+  // [authJwt.verifyToken],
+  controller.exportCustomers
+);
   // app.post("/api/subscription/create", controller.create);
 };

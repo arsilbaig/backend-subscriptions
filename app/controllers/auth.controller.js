@@ -27,38 +27,58 @@ const client = require('twilio')(accountSid, authToken);
 exports.signup = async (req, res) => {
   // const { error } = saveUserValidations(req.body);
   // if (error) return res.status(400).send(errorResponse(error.details[0].message, {}));
-await User.findOne({
-  where: {
-    account_id: req.body.walletName,
-  }
-}).then(async function(userrow){
-  if(userrow==null){
-    User.create({
-      firstname: req.body.firstName,
-      lastname: req.body.lastName,
+  await User.findOne({
+    where: {
       account_id: req.body.walletName,
-      country_code: req.body.countryCode,
-      email: req.body.email,
-      business_email: req.body.business_email,
-      image_url: req.body.image_url,
-      business_website_url: req.body.business_website_url,
-      phone: req.body.phone,
-      role: req.body.role,
-      status: 0,
-    })
-      .then(user => {
-        if (req.body.role) {
-          Role.findAll({
-            where: {
-              id: req.body.role
-            }
-          }).then(roles => {
-            user.setRoles(roles).then(() => {
-            return  res.json({
-              firstName: req.body.firstName,
-              lastName: req.body.lastName,
-              walletName: req.body.walletName,
-              countryCode: req.body.countryCode,
+    }
+  }).then(async function (userrow) {
+    if (userrow == null) {
+      User.create({
+        firstname: req.body.firstName,
+        lastname: req.body.lastName,
+        account_id: req.body.walletName,
+        country_code: req.body.countryCode,
+        email: req.body.email,
+        business_email: req.body.business_email,
+        image_url: req.body.image_url,
+        business_website_url: req.body.business_website_url,
+        phone: req.body.phone,
+        role: req.body.role,
+        status: 0,
+      })
+        .then(user => {
+          if (req.body.role) {
+            Role.findAll({
+              where: {
+                id: req.body.role
+              }
+            }).then(roles => {
+              user.setRoles(roles).then(() => {
+                return res.json({
+                  firstName: req.body.firstName,
+                  lastName: req.body.lastName,
+                  walletName: req.body.walletName,
+                  countryCode: req.body.countryCode,
+                  email: req.body.email,
+                  business_email: req.body.business_email,
+                  image_url: req.body.image_url,
+                  business_website_url: req.body.business_website_url,
+                  phone: req.body.phone,
+                  role: req.body.role,
+                  status: 0,
+                  message: "User registered successfully!"
+                });
+              });
+            });
+          } else {
+            // user role = 1
+            logger.info('User Registered! ', req.body.email + ' registered successfully', ' at ', new Date().toJSON());
+            user.setRoles([1]).then(() => {
+              return res.json({
+                firstname: req.body.firstName,
+                lastname: req.body.lastName,
+                account_id: req.body.walletName,
+                country_code: req.body.countryCode,
                 email: req.body.email,
                 business_email: req.body.business_email,
                 image_url: req.body.image_url,
@@ -69,43 +89,23 @@ await User.findOne({
                 message: "User registered successfully!"
               });
             });
-          });
-        } else {
-          // user role = 1
-          logger.info('User Registered! ', req.body.email+' registered successfully', ' at ', new Date().toJSON());
-          user.setRoles([1]).then(() => {
-          return  res.json({
-              firstname: req.body.firstName,
-              lastname: req.body.lastName,
-              account_id: req.body.walletName,
-              country_code: req.body.countryCode,
-              email: req.body.email,
-              business_email: req.body.business_email,
-              image_url: req.body.image_url,
-              business_website_url: req.body.business_website_url,
-              phone: req.body.phone,
-              role: req.body.role,
-              status: 0,
-              message: "User registered successfully!"
-            });
-          });
-        }
-    //return res.status(200).json({ message: "User registered successfully!" });
-      })
-      
-  }else{
-    return res.status(400).json({ message: "User is already exists" });
-  }
+          }
+          //return res.status(200).json({ message: "User registered successfully!" });
+        })
 
-}) .catch(err => {
-  res.status(500).json({ message: err.message });
-});
+    } else {
+      return res.status(400).json({ message: "User is already exists" });
+    }
+
+  }).catch(err => {
+    res.status(500).json({ message: err.message });
+  });
   // Save User to Database
-  
+
 };
 
 exports.signin = (req, res) => {
-  if(req.body.walletName!= null){
+  if (req.body.walletName != null) {
 
     let authUserPhone = Authuser.findOne({
       where: {
@@ -126,75 +126,75 @@ exports.signin = (req, res) => {
               message: "Your OTP code has been expired! Click below to resend.",
             });
           } else {
-                     
-              User.findOne({
-                where: {
-                  account_id: req.body.walletName
-                }
-              })
-                .then(user => {
-                  const error = [];
-                  if (!user) {
-                    logger.error('Account error! ', 'check your wallet Name', ' at ', new Date().toJSON());
-                    error.push({
-                      type: 'walletName',
-                      message: 'Check your walletName'
-                    });
-            
-                    return res.status(200).send({ error });
-                  }
-            
-                  var token = jwt.sign({ id: user.id }, config.secret, {
-                    expiresIn: 31536000 // 24 hours
+
+            User.findOne({
+              where: {
+                account_id: req.body.walletName
+              }
+            })
+              .then(user => {
+                const error = [];
+                if (!user) {
+                  logger.error('Account error! ', 'check your wallet Name', ' at ', new Date().toJSON());
+                  error.push({
+                    type: 'walletName',
+                    message: 'Check your walletName'
                   });
 
-                  var rtoken = jwt.sign({ id: user.id }, config.secret, {
-                    expiresIn: 31536000 // 24 hours
-                  });
-            
-                  var authorities = [];
-                  user.getRoles().then(roles => {
-                    for (let i = 0; i < roles.length; i++) {
-                      authorities.push(roles[i].name);
-                    }
-                    res.status(200).send({
-                      user: {
-                        id: user.id,
-                        from: 'live-db',
-                        role: authorities[0],
-                        walletName: user.account_id,
-                        displayName: user.firstname + ' ' + user.lastname,
-                        image_url: user.image_url,
-                        business_email: user.business_email,
-                        business_website_url: user.business_website_url,
-                        phone: user.country_code + user.phone,
-                        email: user.email,
-                      },
-                      jwtAccessToken: token,
-                      refreshToken: rtoken,
-                    });
-                  });
-                })
-                .catch(err => {
-                  res.status(500).send({ message: err.message });
+                  return res.status(200).send({ error });
+                }
+
+                var token = jwt.sign({ id: user.id }, config.secret, {
+                  expiresIn: 31536000 // 24 hours
                 });
-            }
-          }else{
-            logger.info('OPT Verification', ' Your OTP code is not correct.', ' at ', new Date().toJSON());
-            res.status(200).json({
-              status: false,
-              message: "something went wrong.",
-            });
+
+                var rtoken = jwt.sign({ id: user.id }, config.secret, {
+                  expiresIn: 31536000 // 24 hours
+                });
+
+                var authorities = [];
+                user.getRoles().then(roles => {
+                  for (let i = 0; i < roles.length; i++) {
+                    authorities.push(roles[i].name);
+                  }
+                  res.status(200).send({
+                    user: {
+                      id: user.id,
+                      from: 'live-db',
+                      role: authorities[0],
+                      walletName: user.account_id,
+                      displayName: user.firstname + ' ' + user.lastname,
+                      image_url: user.image_url,
+                      business_email: user.business_email,
+                      business_website_url: user.business_website_url,
+                      phone: user.country_code + user.phone,
+                      email: user.email,
+                    },
+                    jwtAccessToken: token,
+                    refreshToken: rtoken,
+                  });
+                });
+              })
+              .catch(err => {
+                res.status(500).send({ message: err.message });
+              });
           }
+        } else {
+          logger.info('OPT Verification', ' Your OTP code is not correct.', ' at ', new Date().toJSON());
+          res.status(200).json({
+            status: false,
+            message: "something went wrong.",
+          });
+        }
       }
     })
 
-  }else{
+  } else {
     return result.status(400).send({
       message: errorResponse("Account Id does not provided")
     })
   }
-  
+
 };
 
 
@@ -204,80 +204,80 @@ exports.authuser = async (req, res) => {
     var verifier = "";
     var emailsend = false;
 
-  await  User.findOne({
+    await User.findOne({
       where: {
         account_id: req.body.walletName
       }
-    }).then(async function(userExists){
-      if(userExists!= null){
-    if(userExists.dataValues.email!=""){
-      verifier = userExists.dataValues.email;
-      emailsend = true;
-    }else{
-      emailsend = false;
-      verifier = userExists.dataValues.country_code + userExists.dataValues.phone;
-    }
-    let authUserrecord = Authuser.findOne({ where: { email: verifier } }).then(function (userrow) {
-      if (authUserrecord) {
-        if (userrow != null) {
-          Authuser.destroy({
-            where: {
-              authuser_id: userrow.authuser_id
-            }
-          });
+    }).then(async function (userExists) {
+      if (userExists != null) {
+        if (userExists.dataValues.email != "") {
+          verifier = userExists.dataValues.email;
+          emailsend = true;
+        } else {
+          emailsend = false;
+          verifier = userExists.dataValues.country_code + userExists.dataValues.phone;
         }
+        let authUserrecord = Authuser.findOne({ where: { email: verifier } }).then(function (userrow) {
+          if (authUserrecord) {
+            if (userrow != null) {
+              Authuser.destroy({
+                where: {
+                  authuser_id: userrow.authuser_id
+                }
+              });
+            }
+          }
+        })
+        var expiryTime = 400;
+        var rand = Math.floor(100000 + Math.random() * 900000);
+        // Validate
+        if (emailsend) {
+          sendEmail(userExists.dataValues.email, " OTP Verification Code", "Your OTP code is : " + rand + " Do not share with anyone at any risk. This code will expires in " + expiryTime + " Seconds")
+        } else {
+
+          // two factor authentication
+          client.messages.create({
+            body: 'Your OTP code is : ' + rand + ' Do not share with anyone at any risk. This code will expires in ' + expiryTime + ' Seconds',
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: userExists.dataValues.country_code + userExists.dataValues.phone
+          })
+            .then(message => console.log(message.sid));
+
+        }
+        var expiry_time;
+        expiry_time = new Date();
+        //expires in one minute.
+        expiry_time.setSeconds(expiry_time.getSeconds() + expiryTime);
+
+        authuser.email = verifier;
+        authuser.otp = rand;
+        authuser.otp_expiry = expiry_time;
+        const roleid = await getUserRole(userExists.dataValues.id);
+        let rolename = "";
+        if (roleid && roleid == 1) {
+          rolename = 'merchant';
+        } else if (roleid && roleid == 2) {
+          rolename = 'customer';
+        } else {
+          rolename = '';
+        }
+        let responseData = {
+          email: verifier,
+          phone: verifier,
+          role: rolename,
+          walletId: userExists.dataValues.account_id
+        };
+        // Save to MySQL database
+        Authuser.create(authuser).then(result => {
+          // send uploading message to client
+          res.status(200).json({
+            data: responseData,
+          });
+        });
       }
     })
-    var expiryTime = 400;
-    var rand = Math.floor(100000 + Math.random() * 900000);
-    // Validate
-    if(emailsend){
-      sendEmail(userExists.dataValues.email, " OTP Verification Code", "Your OTP code is : " + rand + " Do not share with anyone at any risk. This code will expires in "+ expiryTime+ " Seconds")
-    }else{
-    
-      // two factor authentication
-      client.messages.create({
-        body: 'Your OTP code is : ' + rand + ' Do not share with anyone at any risk. This code will expires in ' + expiryTime + ' Seconds',
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: userExists.dataValues.country_code + userExists.dataValues.phone
-      })
-        .then(message => console.log(message.sid));
-   
-    }
-       var expiry_time;
-    expiry_time = new Date();
-    //expires in one minute.
-    expiry_time.setSeconds(expiry_time.getSeconds() + expiryTime);
+  }
 
-    authuser.email = verifier;
-    authuser.otp = rand;
-    authuser.otp_expiry = expiry_time;
-    const roleid = await getUserRole(userExists.dataValues.id);
-    let rolename ="";
-    if(roleid && roleid==1){
-      rolename = 'merchant';
-    }else if(roleid && roleid==2){
-      rolename = 'customer';
-    }else{
-      rolename= '';
-    }
-    let responseData = {
-      email: verifier,
-      phone: verifier,
-      role:rolename,
-      walletId: userExists.dataValues.account_id
-    };
-    // Save to MySQL database
-    Authuser.create(authuser).then(result => {
-      // send uploading message to client
-      res.status(200).json({
-        data: responseData,
-      });
-    });
-  }
-})
-  }
-  
   catch (error) {
     res.status(403).json({
       message: "Forbidden!",
@@ -286,21 +286,21 @@ exports.authuser = async (req, res) => {
   }
 }
 
-const getUserRole = async (userId) =>{
+const getUserRole = async (userId) => {
   return new Promise(async function (resolve, reject) {
     await UserRole.findOne({
-        where: {
-          userId: userId
-        }
-      }).then(function(userroledata){
-        if(userroledata!= null){
-          resolve(userroledata.dataValues.roleId)
-        }else{
-          resolve(false);
-        }
-      })
-})
-} 
+      where: {
+        userId: userId
+      }
+    }).then(function (userroledata) {
+      if (userroledata != null) {
+        resolve(userroledata.dataValues.roleId)
+      } else {
+        resolve(false);
+      }
+    })
+  })
+}
 
 const sendEmail = (to, subject, message) => {
   var smtpTr = nodemailer.createTransport({
@@ -319,10 +319,10 @@ const sendEmail = (to, subject, message) => {
   }
   smtpTr.sendMail(mailOptions, function (err, data) {
     if (err) {
-      logger.error('Email failed! ', to +' Email not sent', ' at ', new Date().toJSON());
+      logger.error('Email failed! ', to + ' Email not sent', ' at ', new Date().toJSON());
       console.log('Email not sent!');
     } else {
-      logger.error('Email sent! ', to +' Email sent successfully', ' at ', new Date().toJSON());
+      logger.error('Email sent! ', to + ' Email sent successfully', ' at ', new Date().toJSON());
       console.log('Email sent successfully');
     }
   });
@@ -331,10 +331,10 @@ const sendEmail = (to, subject, message) => {
 exports.signInWithToken = async (req, res) => {
 
   let token = "";
-  if(typeof req.headers['authorization'] !== 'undefined'){
-   token = req.headers['authorization'].split(' ')[1];
+  if (typeof req.headers['authorization'] !== 'undefined') {
+    token = req.headers['authorization'].split(' ')[1];
     req.headers['authorization'] = token;
-  }else{
+  } else {
     token = false;
   }
 
@@ -353,7 +353,7 @@ exports.signInWithToken = async (req, res) => {
       });
     }
     let userId = decoded.id;
-            
+
     var token = jwt.sign({ id: userId }, config.secret, {
       expiresIn: 31536000 // 24 hours
     });
@@ -362,80 +362,80 @@ exports.signInWithToken = async (req, res) => {
     });
     console.log(userId);
     User.findOne({
-      where:{
+      where: {
         id: userId
       }
-    }).then(async function(user){
-      if(user!= null){
-      var authorities = [];
-            const roleid = await getUserRole(userId);
-            let rolename ="";
-            if(roleid && roleid==1){
-              rolename = 'merchant';
-            }else if(roleid && roleid==2){
-              rolename = 'customer';
-            }else{
-              rolename= '';
-            }
-            logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
-            res.status(200).send({
-              user: {
-                id: user.id,
-                from: 'live-db',
-                role: rolename,
-                walletName: user.account_id,
-                displayName: user.firstname + ' ' + user.lastname,
-                image_url: user.image_url,
-                business_email: user.business_email,
-                business_website_url: user.business_website_url,
-                phone: user.country_code + user.phone,
-                email: user.email,
-              },
-              jwtAccessToken: token,
-              refreshToken: rtoken,
-            });
-          }else{
-            res.status(400).send({ message: "user account not found"});
-          }
-      })
-   
+    }).then(async function (user) {
+      if (user != null) {
+        var authorities = [];
+        const roleid = await getUserRole(userId);
+        let rolename = "";
+        if (roleid && roleid == 1) {
+          rolename = 'merchant';
+        } else if (roleid && roleid == 2) {
+          rolename = 'customer';
+        } else {
+          rolename = '';
+        }
+        logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
+        res.status(200).send({
+          user: {
+            id: user.id,
+            from: 'live-db',
+            role: rolename,
+            walletName: user.account_id,
+            displayName: user.firstname + ' ' + user.lastname,
+            image_url: user.image_url,
+            business_email: user.business_email,
+            business_website_url: user.business_website_url,
+            phone: user.country_code + user.phone,
+            email: user.email,
+          },
+          jwtAccessToken: token,
+          refreshToken: rtoken,
+        });
+      } else {
+        res.status(400).send({ message: "user account not found" });
+      }
     })
+
+  })
 }
 
 exports.impersonate = (req, res) => {
 
-  if(req.body.provider_id > 0 && req.body.provider_id!=undefined){
+  if (req.body.provider_id > 0 && req.body.provider_id != undefined) {
     Provider.findOne({
       attributes: ['user_id'],
       where: {
-        provider_id : req.body.provider_id,
-        isTokenfied : req.body.isTokenfied
+        provider_id: req.body.provider_id,
+        isTokenfied: req.body.isTokenfied
       }
-    }).then(function(specificUser){
+    }).then(function (specificUser) {
       console.log(specificUser);
-      if(specificUser != null){
+      if (specificUser != null) {
         UserRole.findOne({
-          include:[{
+          include: [{
             model: User,
             as: "user",
             where: {
               id: specificUser.dataValues.user_id
             }
           }]
-        }).then(function(userrolesdata){
-          if(userrolesdata== null){
+        }).then(function (userrolesdata) {
+          if (userrolesdata == null) {
             logger.error('Roles error ', 'No roles associated with this user', ' at ', new Date().toJSON());
             return res.status(403).send({
               message: "No roles associated with this user."
             });
-          }else{
+          } else {
             Role.findOne({
               where: {
                 id: userrolesdata.dataValues.roleId
               },
-            }).then(function(userrole){
-              if(userrole!= null){
-                if(userrole.dataValues.name=='admin' || userrole.dataValues.name=='provider-admin'){
+            }).then(function (userrole) {
+              if (userrole != null) {
+                if (userrole.dataValues.name == 'admin' || userrole.dataValues.name == 'provider-admin') {
                   User.findOne({
                     where: {
                       email: req.body.email
@@ -443,26 +443,26 @@ exports.impersonate = (req, res) => {
                   })
                     .then(user => {
                       const error = [];
-                      
-                
+
+
                       var token = jwt.sign({ id: user.id }, config.secret, {
                         expiresIn: 31536000 // 24 hours
                       });
-                
+
                       var authorities = [];
                       user.getRoles().then(roles => {
                         for (let i = 0; i < roles.length; i++) {
                           authorities.push(roles[i].name);
                         }
-    
+
                         //getting agencyId if required
                         Agency.findOne({
                           attributes: ['agency_id'],
-                          where:  {
+                          where: {
                             user_id: user.id
                           }
-                        }).then(function(agencyUser){
-                          if(agencyUser!= null){
+                        }).then(function (agencyUser) {
+                          if (agencyUser != null) {
                             logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
                             res.status(200).send({
                               user: {
@@ -479,7 +479,7 @@ exports.impersonate = (req, res) => {
                               },
                               access_token: token,
                             });
-                          }else{
+                          } else {
                             logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
                             res.status(200).send({
                               user: {
@@ -497,7 +497,7 @@ exports.impersonate = (req, res) => {
                             });
                           }
                         });
-                      
+
                       });
                     }).catch(err => {
                       res.status(500).send({ message: err.message });
@@ -507,29 +507,29 @@ exports.impersonate = (req, res) => {
             })
           }
         })
-      }else{
+      } else {
         makeAgencyLogin(req, res);
       }
     })
-  }else{
+  } else {
     makeAgencyLogin(req, res);
   }
-  
+
 };
 
 const makeAgencyLogin = (req, res) => {
-  
-  var agency_data_id=0;
+
+  var agency_data_id = 0;
   let token = "";
-  if(typeof req.headers['authorization'] !== 'undefined'){
-   token = req.headers['authorization'].split(' ')[1];
+  if (typeof req.headers['authorization'] !== 'undefined') {
+    token = req.headers['authorization'].split(' ')[1];
     req.headers['authorization'] = token;
-  }else{
+  } else {
     token = false;
   }
- // let token = req.headers['authorization'].split(' ')[1];
- 
-  
+  // let token = req.headers['authorization'].split(' ')[1];
+
+
   if (!token) {
     logger.error('token error ', 'No token provided', ' at ', new Date().toJSON());
     return res.status(403).send({
@@ -546,27 +546,27 @@ const makeAgencyLogin = (req, res) => {
     }
     let userId = decoded.id;
     UserRole.findOne({
-      include:[{
+      include: [{
         model: User,
         as: "user",
         where: {
           id: userId
         }
       }]
-    }).then(function(userrolesdata){
-      if(userrolesdata== null){
+    }).then(function (userrolesdata) {
+      if (userrolesdata == null) {
         logger.error('Roles error ', 'No roles associated with this user', ' at ', new Date().toJSON());
         return res.status(403).send({
           message: "No roles associated with this user."
         });
-      }else{
+      } else {
         Role.findOne({
           where: {
             id: userrolesdata.dataValues.roleId
           },
-        }).then(function(userrole){
-          if(userrole!= null){
-            if(userrole.dataValues.name=='admin' || userrole.dataValues.name=='provider-admin' || userrole.dataValues.name=='agency-admin'){
+        }).then(function (userrole) {
+          if (userrole != null) {
+            if (userrole.dataValues.name == 'admin' || userrole.dataValues.name == 'provider-admin' || userrole.dataValues.name == 'agency-admin') {
               User.findOne({
                 where: {
                   email: req.body.email
@@ -580,14 +580,14 @@ const makeAgencyLogin = (req, res) => {
                       type: 'email',
                       message: 'Check your email address'
                     });
-            
+
                     return res.status(200).send({ error });
                   }
-            
+
                   var token = jwt.sign({ id: user.id }, config.secret, {
                     expiresIn: 31536000 // 24 hours
                   });
-            
+
                   var authorities = [];
                   user.getRoles().then(roles => {
                     for (let i = 0; i < roles.length; i++) {
@@ -597,11 +597,11 @@ const makeAgencyLogin = (req, res) => {
                     //getting agencyId if required
                     Agency.findOne({
                       attributes: ['agency_id'],
-                      where:  {
+                      where: {
                         user_id: user.id
                       }
-                    }).then(function(agencyUser){
-                      if(agencyUser!= null){
+                    }).then(function (agencyUser) {
+                      if (agencyUser != null) {
                         logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
                         res.status(200).send({
                           user: {
@@ -618,7 +618,7 @@ const makeAgencyLogin = (req, res) => {
                           },
                           access_token: token,
                         });
-                      }else{
+                      } else {
                         logger.info('Impersonate to ', user.username, ' at ', new Date().toJSON());
                         res.status(200).send({
                           user: {
@@ -636,7 +636,7 @@ const makeAgencyLogin = (req, res) => {
                         });
                       }
                     });
-                  
+
                   });
                 }).catch(err => {
                   res.status(500).send({ message: err.message });
@@ -684,25 +684,25 @@ exports.getAllCustomers = (req, res) => {
       status: 0
     },
   })
-      .then(users => {
-          logger.info("Customers", "getAllCustomers", "Info", "Successfully get all customers");
-          for (var i in users) {
-              data.push({ 
-              'userId': users[i].id,
-              'userName': users[i].firstname +" "+users[i].lastname,
-              'accountId': users[i].account_id,
-              'image_url': users[i].image_url
-          });
-          }
-          res.status(200).json({
-              message: "Operation perfom successfully",
-              users: data == null ? {} : data
-          });
-      })
-      .catch(error => {
-          res.status(500).json({
-              message: "Error!",
-              error: error.message
-          });
+    .then(users => {
+      logger.info("Customers", "getAllCustomers", "Info", "Successfully get all customers");
+      for (var i in users) {
+        data.push({
+          'userId': users[i].id,
+          'userName': users[i].firstname + " " + users[i].lastname,
+          'accountId': users[i].account_id,
+          'image_url': users[i].image_url
+        });
+      }
+      res.status(200).json({
+        message: "Operation perfom successfully",
+        users: data == null ? {} : data
       });
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: "Error!",
+        error: error.message
+      });
+    });
 }
