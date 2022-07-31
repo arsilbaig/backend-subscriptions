@@ -265,9 +265,7 @@ exports.mySubscription = async (req, res) => {
                     'status': status_text
                 });
             }
-            res.status(200).json({
-                my_subscription: data,
-            });
+            res.status(200).json(data);
         });
         } 
              
