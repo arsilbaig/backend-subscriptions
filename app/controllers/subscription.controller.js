@@ -50,7 +50,8 @@ exports.getSubscriptionById = (req, res) => {
     Subscription.findByPk(subscriptionId)
         .then(subscription => {
             logger.info("Subscription", "getSubscriptionById", "Info", "Successfully Get a Subscription with id = " + subscriptionId);
-            res.status(200).json(subscription == null ? {} : subscription);
+            res.status(200).json( subscription == null ? {} : subscription
+            );
         })
         .catch(error => {
             res.status(500).json({
