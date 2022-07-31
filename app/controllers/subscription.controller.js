@@ -262,6 +262,8 @@ exports.mySubscription = async (req, res) => {
                     'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
                     'frequency': val[i].subscription.dataValues.frequency,
                     'image': val[i].subscription.dataValues.image,
+                    'terms': val[i].subscription.dataValues.terms,
+                    'description': val[i].subscription.dataValues.description,
                     'status': status_text
                 });
             }
