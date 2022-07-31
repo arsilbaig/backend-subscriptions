@@ -7,7 +7,7 @@ const messages = {
   emptyUuid: "uuid is required",
   phoneNumberExists:
     "Phone number already exists. Please try again with some other.",
-  emailExists: "Email already exists. Please try again with some other.",
+  emailExists: "Account already exists. Please try again with some other.",
   noRecord: "No records found",
   noUser: "User does not exists",
   userIdRequired: "User id is required",

@@ -4,7 +4,7 @@ module.exports = {
   SMTP_HOSTNAME_TEST:"mail.ifc.com.pk",
   SMTP_PASSWORD_TEST:"q{V}v}Kruf1z",
   SMTP_PORT_TEST: 465,
-  WEBTITLE: "MPM Falcon",
+  WEBTITLE: "PrimeLab",
   SMTP_USERNAME_LIVE:"",
   SMTP_HOSTNAME_LIVE:"",
   SMTP_PASSWORD_LIVE:"",

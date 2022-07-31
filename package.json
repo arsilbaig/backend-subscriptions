@@ -1,7 +1,7 @@
 {
-  "name": "mpm-falcon",
+  "name": "prime-lab",
   "version": "1.0.0",
-  "description": "MPM Falcon Node Application",
+  "description": "PrimeLab",
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js"
