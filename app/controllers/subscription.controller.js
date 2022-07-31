@@ -98,7 +98,7 @@ exports.getSubscriptions = (req, res) => {
                 });
             }
             res.status(200).json(
-               data 
+               data == null ? {} : data
             );
         })
         .catch(error => {
