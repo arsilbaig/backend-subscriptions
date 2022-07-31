@@ -5,6 +5,7 @@ var _subscription = require("./subscription");
 var _subscription_order = require("./subscription_order");
 var _user_roles = require("./user_roles");
 var _users = require("./users");
+var _customer_subscriptions = require("./customer_subscriptions");
 
 function initModels(sequelize) {
   var authuser = _authuser(sequelize, DataTypes);
@@ -13,6 +14,8 @@ function initModels(sequelize) {
   var subscription_order = _subscription_order(sequelize, DataTypes);
   var user_roles = _user_roles(sequelize, DataTypes);
   var users = _users(sequelize, DataTypes);
+  var customer_subscriptions = _customer_subscriptions(sequelize, DataTypes);
+
 
   roles.belongsToMany(users, { as: 'userId_users', through: user_roles, foreignKey: "roleId", otherKey: "userId" });
   users.belongsToMany(roles, { as: 'roleId_roles', through: user_roles, foreignKey: "userId", otherKey: "roleId" });
@@ -26,6 +29,10 @@ function initModels(sequelize) {
   users.hasMany(subscription_order, { as: "subscription_orders", foreignKey: "user_id"});
   user_roles.belongsTo(users, { as: "user", foreignKey: "userId"});
   users.hasMany(user_roles, { as: "user_roles", foreignKey: "userId"});
+  customer_subscriptions.belongsTo(subscription, { as: "subscription", foreignKey: "subscription_id"});
+  subscription.hasMany(customer_subscriptions, { as: "customer_subscriptions", foreignKey: "subscription_id"});
+  customer_subscriptions.belongsTo(users, { as: "user", foreignKey: "user_id"});
+  users.hasMany(customer_subscriptions, { as: "customer_subscriptions", foreignKey: "user_id"});
 
   return {
     authuser,
@@ -34,6 +41,7 @@ function initModels(sequelize) {
     subscription_order,
     user_roles,
     users,
+    customer_subscriptions,
   };
 }
 module.exports = initModels;
