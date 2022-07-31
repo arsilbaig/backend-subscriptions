@@ -26,7 +26,7 @@ module.exports = function (app) {
     controller.signInWithToken
   );
   app.get(
-    "/users/marchant",
+    "/users/merchant",
     controller.signInWithToken
   );
     app.get(
