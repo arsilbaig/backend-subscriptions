@@ -26,8 +26,13 @@ module.exports = function (app) {
     controller.getSubscriptions
   );
   app.get(
-    '/api/subscription/getAllMarketPlace',
+    '/api/subscription/mySubscription',
     [authJwt.verifyToken],
+    controller.mySubscription
+  );
+  
+  app.get(
+    '/api/subscription/getAllMarketPlace',
     controller.getAllMarketPlace
   );
 

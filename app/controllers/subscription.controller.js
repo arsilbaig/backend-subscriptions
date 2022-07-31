@@ -212,3 +212,45 @@ exports.buySubscription = (req, res) => {
         });
     }
 }
+
+exports.mySubscription = (req, res) => {
+    const data = [];
+    try {
+              // send uploading message to client
+            CustomerSubscriptions.findAll({
+                where: {
+                    user_id : req.userId
+                  },
+                include: [{
+                    model: Subscription,
+                    as: "subscription"
+                }]
+            }).then(val => {
+                for (var i in val) {
+                    let status_text;
+                    if(val[i].subscription.dataValues.status==0){
+                        status_text = "active";
+                    }else if(val[i].subscription.dataValues.status==1){
+                        status_text = "cancelled";
+                    }
+                    data.push({
+                        'subscriptionId': val[i].subscription.dataValues.subscription_id,
+                        'sub_name': val[i].subscription.dataValues.sub_name,
+                        'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
+                        'frequency': val[i].subscription.dataValues.frequency,
+                        'image': val[i].subscription.dataValues.image,
+                        'status': status_text
+                    });
+                }
+                res.status(200).json({
+                    my_subscription: data,
+                });
+            });
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Fail!",
+            error: errorResponse(error.message)
+        });
+    }
+}
