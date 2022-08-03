@@ -131,6 +131,61 @@ exports.signup = async (req, res) => {
 
 };
 
+
+exports.profileUpdate = (req, res) => {
+  User.update({
+    firstname: req.body.firstName,
+    lastname: req.body.lastName,
+    account_id: req.body.walletName,
+    country_code: req.body.countryCode,
+    email: req.body.email,
+    business_email: req.body.business_email,
+    image_url: req.body.image_url,
+    business_website_url: req.body.business_website_url,
+    phone: req.body.phone,
+    role: req.body.role,
+    status: 0,
+  },
+    {
+      where: { id: req.userId }
+    }).then(function () {
+      var token = jwt.sign({ id: req.userId }, config.secret, {
+        expiresIn: 31536000 // 24 hours
+      });
+
+      var rtoken = jwt.sign({ id: req.userId }, config.secret, {
+        expiresIn: 31536000*2 // 24 hours
+      });
+      let rolename = "";
+      if (req.body.role && req.body.role == 1) {
+        rolename = 'merchant';
+      } else if (req.body.role && req.body.role == 2) {
+        rolename = 'customer';
+      } else {
+        rolename = '';
+      }
+      res.status(200).send({
+        user: {
+          id: req.userId,
+          from: 'live-db',
+          role: rolename,
+          walletName: req.body.walletName,
+          displayName:  req.body.firstName + ' ' + req.body.lastName,
+          image_url: req.body.image_url?req.body.image_url:"",
+          business_email: req.body.business_email?req.body.business_email:"",
+          business_website_url: req.body.business_website_url?req.body.business_website_url:"",
+          phone: req.body.phone ? req.body.countryCode + req.body.phone:"",
+          email: req.body.email,
+        },
+        jwtAccessToken: token,
+        jwtRefreshToken: rtoken,
+      });
+    }).catch(err => {
+      res.status(500).send({ message: err.message });
+    });
+}
+
+
 exports.signin = (req, res) => {
   if (req.body.walletName != null) {
 
@@ -674,33 +729,6 @@ const makeAgencyLogin = (req, res) => {
       }
     })
   })
-}
-
-exports.profileUpdate = (req, res) => {
-  User.update({
-    username: req.body.username,
-    email: req.body.email,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    password: bcrypt.hashSync(req.body.password, 8),
-    role: req.body.role,
-    isActive: req.body.isActive,
-  },
-    {
-      where: { id: req.body.id }
-    }).then(function () {
-      res.status(200).send({
-        username: req.body.username,
-        email: req.body.email,
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        password: bcrypt.hashSync(req.body.password, 8),
-        role: req.body.role,
-        isActive: req.body.isActive,
-      });
-    }).catch(err => {
-      res.status(500).send({ message: err.message });
-    });
 }
 
 
