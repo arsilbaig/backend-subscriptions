@@ -168,7 +168,7 @@ exports.getAllMarketPlace = (req, res) => {
 }
 
 
-exports.buySubscription = (req, res) => {
+exports.buySubscription = async (req, res) => {
     let customerCubscriptions = {};
     const data = [];
     try {
@@ -176,36 +176,50 @@ exports.buySubscription = (req, res) => {
         customerCubscriptions.user_id = req.userId,
         customerCubscriptions.subscription_id = req.body.subscription_id,
         customerCubscriptions.quantity = 1,
+        //checking if customer already subscribed
+      await  CustomerSubscriptions.findOne({
+            where: {
+                subscription_id: req.body.subscription_id,
+                user_id : req.userId
+            }
+        }).then(async function(subscription_row){
+            if(subscription_row == null){
+                // Save to MySQL database
+              await  CustomerSubscriptions.create(customerCubscriptions).then(async result => {
 
-        // Save to MySQL database
-        CustomerSubscriptions.create(customerCubscriptions).then(result => {
-
-            logger.info('Subscription Orders Created', req.userId + ' has been susbcribe successfully', ' at ', new Date().toJSON());
-            // send uploading message to client
-            CustomerSubscriptions.findAll({
-                where: {
-                    subscription_id: req.body.subscription_id,
-                    user_id : req.userId
-                  },
-                include: [{
-                    model: Subscription,
-                    as: "subscription"
-                }]
-            }).then(val => {
-                for (var i in val) {
-                    data.push({
-                        'subscriptionId': val[i].subscription.dataValues.subscription_id,
-                        'sub_name': val[i].subscription.dataValues.sub_name,
-                        'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
-                        'frequency': val[i].subscription.dataValues.frequency,
-                        'image': val[i].subscription.dataValues.image
-                    });
-                }
-                res.status(200).json({
-                    subscription: data,
+                    logger.info('Subscription Orders Created', req.userId + ' has been susbcribe successfully', ' at ', new Date().toJSON());
+                    // send uploading message to client
+                  await  CustomerSubscriptions.findAll({
+                        where: {
+                            subscription_id: req.body.subscription_id,
+                            user_id : req.userId
+                        },
+                        include: [{
+                            model: Subscription,
+                            as: "subscription"
+                        }]
+                    }).then(val => {
+                        for (var i in val) {
+                            data.push({
+                                'subscriptionId': val[i].subscription.dataValues.subscription_id,
+                                'sub_name': val[i].subscription.dataValues.sub_name,
+                                'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
+                                'frequency': val[i].subscription.dataValues.frequency,
+                                'image': val[i].subscription.dataValues.image
+                            });
+                        }
+                        res.status(200).json({
+                            subscription: data,
+                        });
+                    })
                 });
-            })
-        });
+            }else{
+                res.status(400).json({
+                    error: "You have already subscribed this Subscription.",
+                });
+            }
+        })
+       
     } catch (error) {
 
         res.status(500).json({
