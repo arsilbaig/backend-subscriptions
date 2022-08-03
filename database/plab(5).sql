@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 4.9.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jul 31, 2022 at 06:09 AM
--- Server version: 10.4.24-MariaDB
--- PHP Version: 8.1.6
+-- Host: localhost
+-- Generation Time: Aug 03, 2022 at 04:20 PM
+-- Server version: 8.0.18
+-- PHP Version: 7.3.11
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -40,7 +41,9 @@ CREATE TABLE `authuser` (
 
 INSERT INTO `authuser` (`authuser_id`, `email`, `otp`, `otp_expiry`) VALUES
 (3, 'raza4907404@gmail.com', 841100, '2022-07-30 15:23:59'),
-(7, '+923224907404', 838867, '2022-07-30 16:21:25');
+(7, '+923224907404', 838867, '2022-07-30 16:21:25'),
+(9, 'test1@test.tv', 647582, '2022-07-31 15:23:33'),
+(10, 'adnanyounus1@gmail.com', 585901, '2022-08-03 10:39:07');
 
 -- --------------------------------------------------------
 
@@ -53,8 +56,17 @@ CREATE TABLE `customer_subscriptions` (
   `subscription_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `created_at` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `customer_subscriptions`
+--
+
+INSERT INTO `customer_subscriptions` (`customer_subscription_id`, `subscription_id`, `user_id`, `quantity`, `createdAt`, `updatedAt`) VALUES
+(6, 1, 3, 1, '2022-07-31 15:43:33', '2022-07-31 15:43:33'),
+(7, 1, 2, 1, '2022-08-03 10:37:13', '2022-08-03 10:37:13');
 
 -- --------------------------------------------------------
 
@@ -104,7 +116,9 @@ CREATE TABLE `subscription` (
 INSERT INTO `subscription` (`subscription_id`, `user_id`, `sub_name`, `withdraw_amount`, `frequency`, `image`, `description`, `terms`, `status`, `createdAt`, `updatedAt`) VALUES
 (1, 2, 'Custom Monthly NFTees', '2.00', 'Once Per month', 'test.png', 'In publishing and graphic design', 'In publishing and graphic design', 0, '2022-07-30 18:15:32', '2022-07-30 18:15:32'),
 (2, 2, 'Custom Monthly NFTees', '2.00', 'Once Per month', 'test.png', 'In publishing and graphic design', 'In publishing and graphic design', 0, '2022-07-30 19:25:44', '2022-07-30 19:25:44'),
-(3, 2, 'Custom Monthly NFTees', '2.00', 'Once Per month', 'test.png', 'In publishing and graphic design', 'In publishing and graphic design', 0, '2022-07-31 01:03:04', '2022-07-31 01:03:04');
+(3, 2, 'Custom Monthly NFTees', '2.00', 'Once Per month', 'test.png', 'In publishing and graphic design', 'In publishing and graphic design', 0, '2022-07-31 01:03:04', '2022-07-31 01:03:04'),
+(4, 2, 'Custom Monthly NFTees', '2.00', 'Once Per month', 'test.png', 'In publishing and graphic design', 'In publishing and graphic design', 0, '2022-07-31 04:46:51', '2022-07-31 04:46:51'),
+(5, 3, 'Custom Monthly NFTees', '2.00', 'Once Per month', 'test.png', 'In publishing and graphic design', 'In publishing and graphic design', 0, '2022-07-31 06:51:43', '2022-07-31 06:51:43');
 
 -- --------------------------------------------------------
 
@@ -129,8 +143,7 @@ CREATE TABLE `subscription_order` (
 
 INSERT INTO `subscription_order` (`subscription_order_id`, `user_id`, `subscription_id`, `amount`, `expiry_date`, `status`, `createdAt`, `updatedAt`) VALUES
 (1, 2, 1, '20.00', '2022-07-30 21:47:37', 0, '2022-07-30 21:47:37', '2022-07-30 21:47:37'),
-(2, 1, 1, '0.00', '2022-07-30 22:32:06', 0, '2022-07-30 22:32:06', '2022-07-30 22:32:06'),
-(3, 2, 1, '0.00', '2022-07-30 22:32:06', 0, '2022-07-30 22:32:06', '2022-07-30 22:32:06');
+(2, 1, 1, '0.00', '2022-07-30 22:32:06', 0, '2022-07-30 22:32:06', '2022-07-30 22:32:06');
 
 -- --------------------------------------------------------
 
@@ -160,7 +173,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `firstname`, `lastname`, `account_id`, `email`, `business_email`, `image_url`, `business_website_url`, `country_code`, `phone`, `status`, `createdAt`, `updatedAt`) VALUES
 (1, 'Raza', 'Umer', 'raza.testplab', '', 'test@test.tv', 'test tets t', 'test test ', '+92', '3224907404', 0, '2022-07-30 11:18:36', '2022-07-30 11:18:36'),
-(2, 'Adnan', 'Younus', 'adnan.testplab', 'adnanyounus1@gmail.com', 'test@test12.tv', 'test tets t', 'test test ', '', '', 0, '2022-07-30 14:28:47', '2022-07-30 14:28:47');
+(2, 'Raza 12', 'Umer 12', 'raza1.testplab21', 'test12@test.tv', 'test21@test.tv', 'test tets t 2112', 'test test212 ', '', '', 0, '2022-07-30 14:28:47', '2022-08-03 11:28:15'),
+(3, 'Raza', 'Umer', 'raza1.testplab', 'test1@test.tv', 'test@test.tv', 'test tets t', 'test test ', '', '', 0, '2022-07-31 04:47:56', '2022-07-31 04:47:56');
 
 -- --------------------------------------------------------
 
@@ -181,7 +195,8 @@ CREATE TABLE `user_roles` (
 
 INSERT INTO `user_roles` (`roleId`, `userId`, `createdAt`, `updatedAt`) VALUES
 (1, 1, '2022-07-30 11:18:38', '2022-07-30 11:18:38'),
-(1, 2, '2022-07-30 14:28:48', '2022-07-30 14:28:48');
+(2, 2, '2022-07-30 14:28:48', '2022-07-30 14:28:48'),
+(2, 3, '2022-07-31 04:47:56', '2022-07-31 04:47:56');
 
 --
 -- Indexes for dumped tables
@@ -245,19 +260,19 @@ ALTER TABLE `user_roles`
 -- AUTO_INCREMENT for table `authuser`
 --
 ALTER TABLE `authuser`
-  MODIFY `authuser_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `authuser_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `customer_subscriptions`
 --
 ALTER TABLE `customer_subscriptions`
-  MODIFY `customer_subscription_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `customer_subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `subscription`
 --
 ALTER TABLE `subscription`
-  MODIFY `subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `subscription_order`
@@ -269,7 +284,7 @@ ALTER TABLE `subscription_order`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
