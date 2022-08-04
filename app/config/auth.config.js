@@ -1,8 +1,8 @@
 module.exports = {
   secret: "bezkoder-secret-key",
-  SMTP_USERNAME_TEST:"test@ifc.com.pk",
-  SMTP_HOSTNAME_TEST:"mail.ifc.com.pk",
-  SMTP_PASSWORD_TEST:"q{V}v}Kruf1z",
+  SMTP_USERNAME_TEST:"plab@itartpro.com",
+  SMTP_HOSTNAME_TEST:"mail.itartpro.com",
+  SMTP_PASSWORD_TEST:"Ik!2wm,-7c#8",
   SMTP_PORT_TEST: 465,
   WEBTITLE: "PrimeLab",
   SMTP_USERNAME_LIVE:"",
