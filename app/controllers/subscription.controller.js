@@ -47,14 +47,45 @@ exports.create = (req, res) => {
         });
     }
 }
-
+const getSubsStatus = async (user_id,subscription_id) =>{
+    return new Promise(async function(resolve, reject){
+    await CustomerSubscriptions.findOne({
+        attributes: ['user_id'],
+        where:{
+            subscription_id: subscription_id,
+            user_id: user_id
+        }
+    }).then(function(customer_subscription){
+        if(customer_subscription!=null){
+            resolve(true);
+        }else{
+            resolve(false);
+        }
+    })
+})
+}
 // Get Subscription By id
-exports.getSubscriptionById = (req, res) => {
-    let subscriptionId = req.params.id;
-    Subscription.findByPk(subscriptionId)
+exports.getSubscriptionById = async (req, res) => {
+    let subscriptionId = parseInt(req.params.id);
+  const getStatus = await getSubsStatus(req.userId, subscriptionId);
+    console.log(getStatus);
+   await Subscription.findByPk(subscriptionId)
         .then(subscription => {
+            let subscribedData ={
+                createdAt: subscription.dataValues.createdAt,
+                description: subscription.dataValues.description,
+                frequency: subscription.dataValues.frequency,
+                status: getStatus?getStatus:subscription.dataValues.status,
+                image: subscription.dataValues.image,
+                sub_name: subscription.dataValues.sub_name,
+                subscription_id: subscription.dataValues.subscription_id,
+                terms: subscription.dataValues.terms,
+                updatedAt: subscription.dataValues.updatedAt,
+                user_id: subscription.dataValues.user_id,
+                withdraw_amount: subscription.dataValues.withdraw_amount,
+            };
             logger.info("Subscription", "getSubscriptionById", "Info", "Successfully Get a Subscription with id = " + subscriptionId);
-            res.status(200).json( subscription == null ? {} : subscription
+            res.status(200).json( subscribedData == null ? {} : subscribedData
             );
         })
         .catch(error => {
