@@ -366,45 +366,82 @@ exports.cancelSubscription = async (req, res) => {
 
 }
 
-
+const CsvParser = require("json2csv").Parser;
 exports.exportCustomersCSV = async (req, res) => {
-    //const fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
     let subscribers = [];
-    try {
-        // Building export Customers object from upoading request's body
+    
         var userIds = req.body.users;
-        var subsId = parseInt(req.body.subscriptionId);
-        if (subsId != null) {
-            for (var i in userIds) {
-              await  User.findOne({
-                    where: {
-                        id: parseInt(userIds[i])
+                var subsId = parseInt(req.body.subscriptionId);
+                if (subsId != null) {
+                    for (var i in userIds) {
+                      await  User.findOne({
+                            where: {
+                                id: parseInt(userIds[i])
+                            }
+                        }).then(function(userdata){
+                            if(userdata!=null){
+                                subscribers.push({ 
+                                    'user_id': parseInt(userdata.dataValues.id), 
+                                    'subscription_id': subsId,
+                                    'Full Name' : userdata.dataValues.firstname +' '+ userdata.dataValues.lastname,
+                                    'Email or Phone': userdata.dataValues.email? userdata.dataValues.email:userdata.dataValues.country_code +"-"+userdata.dataValues.phone,
+                                    'Business Website': userdata.dataValues.business_website_url?userdata.dataValues.business_website_url:"",
+                                    'Business Email': userdata.dataValues.business_email
+                                });
+                            }
+                        })
                     }
-                }).then(function(userdata){
-                    if(userdata!=null){
-                        subscribers.push({ 
-                            'user_id': parseInt(userIds[i]), 
-                            'subscription_id': subsId,
-                            'Full Name' : userdata.dataValues.firstname +' '+ userdata.dataValues.lastname,
-                            'Email or Phone': userdata.dataValues.email? userdata.dataValues.email:userdata.dataValues.country_code +"-"+userdata.dataValues.phone,
-                            'Business Website': userdata.dataValues.business_website_url?userdata.dataValues.business_website_url:"",
-                            'Business Email': userdata.dataValues.business_email
-                        });
-                    }
-                })
-            }
-            var filename = ['Users-', Date.now()].join('');
-            var fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
-            var fieldNames = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
-            var data = json2csv({ data: subscribers, fields: fields, fieldNames: fieldNames });
-            res.set('Content-Disposition', ["attachment; filename=", filename, '.csv'].join(''))
-            res.end(data);
-        }
-    } 
-    catch (error) {
-        res.status(500).json({
-            message: "Fail!",
-            error: errorResponse(error.message)
-        });
+    
+        const fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
+        const csvParser = new CsvParser({ fields });
+        const csvData = csvParser.parse(subscribers);
+
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("Content-Disposition", "attachment; filename=subscribers.csv");
+    
+        res.status(200).end(csvData);
+                }
     }
-}
+
+
+//     //const fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
+//     let subscribers = [];
+//     try {
+//         // Building export Customers object from upoading request's body
+//         var userIds = req.body.users;
+//         var subsId = parseInt(req.body.subscriptionId);
+//         if (subsId != null) {
+//             for (var i in userIds) {
+//               await  User.findOne({
+//                     where: {
+//                         id: parseInt(userIds[i])
+//                     }
+//                 }).then(function(userdata){
+//                     if(userdata!=null){
+//                         subscribers.push({ 
+//                             'user_id': parseInt(userIds[i]), 
+//                             'subscription_id': subsId,
+//                             'Full Name' : userdata.dataValues.firstname +' '+ userdata.dataValues.lastname,
+//                             'Email or Phone': userdata.dataValues.email? userdata.dataValues.email:userdata.dataValues.country_code +"-"+userdata.dataValues.phone,
+//                             'Business Website': userdata.dataValues.business_website_url?userdata.dataValues.business_website_url:"",
+//                             'Business Email': userdata.dataValues.business_email
+//                         });
+//                     }
+//                 })
+//             }
+//             var filename = ['Users-', Date.now()].join('');
+//             var fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
+//             var fieldNames = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
+//             var data = json2csv({ data: subscribers, fields: fields, fieldNames: fieldNames });
+//             res.set('Content-Disposition', ["attachment; filename=", filename, '.csv'].join(''))
+//             res.status(200).send(Buffer.from(data))
+//            // res.end(data);
+//         }
+//     } 
+//     catch (error) {
+//         res.status(500).json({
+//             message: "Fail!",
+//             error: errorResponse(error.message)
+//         });
+//     }
+// }
