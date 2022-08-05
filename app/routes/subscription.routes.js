@@ -46,7 +46,7 @@ module.exports = function (app) {
     controller.getAllMarketPlace
   );
 
-  app.get(
+  app.post(
     '/api/subscription/exportCSV',
     [authJwt.verifyToken],
     controller.exportCustomersCSV
