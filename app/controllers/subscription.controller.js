@@ -9,6 +9,7 @@ const Op = db.Sequelize.Op;
 const logger = require("../../logs/logger.js");
 const { saveSubsriptionValidations } = require('../validations/validation');
 const {authJwt} = require("../middleware");
+const json2csv = require('json2csv').parse;
 
 exports.create = (req, res) => {
     let subscription = {};
@@ -363,4 +364,47 @@ exports.cancelSubscription = async (req, res) => {
         });
     }
 
+}
+
+
+exports.exportCustomersCSV = async (req, res) => {
+    //const fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
+    let subscribers = [];
+    try {
+        // Building export Customers object from upoading request's body
+        var userIds = req.body.users;
+        var subsId = parseInt(req.body.subscriptionId);
+        if (subsId != null) {
+            for (var i in userIds) {
+              await  User.findOne({
+                    where: {
+                        id: parseInt(userIds[i])
+                    }
+                }).then(function(userdata){
+                    if(userdata!=null){
+                        subscribers.push({ 
+                            'user_id': parseInt(userIds[i]), 
+                            'subscription_id': subsId,
+                            'Full Name' : userdata.dataValues.firstname +' '+ userdata.dataValues.lastname,
+                            'Email or Phone': userdata.dataValues.email? userdata.dataValues.email:userdata.dataValues.country_code +"-"+userdata.dataValues.phone,
+                            'Business Website': userdata.dataValues.business_website_url?userdata.dataValues.business_website_url:"",
+                            'Business Email': userdata.dataValues.business_email
+                        });
+                    }
+                })
+            }
+            var filename = ['Users-', Date.now()].join('');
+            var fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
+            var fieldNames = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
+            var data = json2csv({ data: subscribers, fields: fields, fieldNames: fieldNames });
+            res.set('Content-Disposition', ["attachment; filename=", filename, '.csv'].join(''))
+            res.end(data);
+        }
+    } 
+    catch (error) {
+        res.status(500).json({
+            message: "Fail!",
+            error: errorResponse(error.message)
+        });
+    }
 }

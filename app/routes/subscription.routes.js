@@ -41,10 +41,15 @@ module.exports = function (app) {
     controller.getAllMarketPlace
   );
 
-  app.post(
-    '/api/subscription/exportCustomers',
+  app.get(
+    '/api/subscription/getAllMarketPlace',
+    controller.getAllMarketPlace
+  );
+
+  app.get(
+    '/api/subscription/exportCSV',
     [authJwt.verifyToken],
-    controller.exportCustomers
+    controller.exportCustomersCSV
   );
 
   app.post(
