@@ -302,7 +302,7 @@ exports.getSubscriptionsOrderBySubscriptionId = (req, res) => {
         `SELECT u.* FROM users u
         LEFT JOIN subscription_order so 
          on(u.id = so.user_id) LEFT JOIN user_roles ur ON(ur.userId=u.id) 
-        where ur.roleId=2 and so.subscription_id=`+req.body.subscription_id, { type: db.sequelize.QueryTypes.SELECT }
+        where ur.roleId=2 and so.subscription_id=`+req.params.id, { type: db.sequelize.QueryTypes.SELECT }
         )
         .then(userInfo => {
             if(userInfo.length>0){

@@ -31,7 +31,7 @@ module.exports = function (app) {
     controller.mySubscription
   );
   app.get(
-    '/api/subscription/exportusers',
+    '/api/subscription/exportusers/:id',
     [authJwt.verifyToken],
     controller.getSubscriptionsOrderBySubscriptionId
   );
