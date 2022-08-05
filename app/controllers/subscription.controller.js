@@ -96,6 +96,8 @@ exports.getSubscriptions = (req, res) => {
                     'image': subscription[i].image,
                     'status': status_text,
                     'total_subscriber': subscription[i].subscription_orders.length,
+                    'description': subscription[i].description,
+                    'terms': subscription[i].terms
                 });
             }
             res.status(200).json(
