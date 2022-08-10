@@ -332,7 +332,7 @@ exports.getSubscriptionsOrderBySubscriptionId = (req, res) => {
     const data = [];
     db.sequelize.query(
         `SELECT u.* FROM users u
-        LEFT JOIN subscription_order so 
+        LEFT JOIN customer_subscriptions so 
          on(u.id = so.user_id) LEFT JOIN user_roles ur ON(ur.userId=u.id) 
         where ur.roleId=2 and so.subscription_id=`+req.params.id, { type: db.sequelize.QueryTypes.SELECT }
         )
