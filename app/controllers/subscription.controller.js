@@ -99,13 +99,14 @@ exports.getSubscriptionById = async (req, res) => {
 
 exports.getSubscriptions = (req, res) => {
     const data = [];
+    console.log(req);
     Subscription.findAll({
         where: {
             user_id: req.userId
           },
         include: [{
-            model: SubscriptionOrder,
-            as: "subscription_orders"
+            model: CustomerSubscriptions,
+            as: "customer_subscriptions"
         }]
     })
         .then(subscription => {
@@ -127,7 +128,7 @@ exports.getSubscriptions = (req, res) => {
                     'frequency': subscription[i].frequency,
                     'image': subscription[i].image,
                     'status': status_text,
-                    'total_subscriber': subscription[i].subscription_orders.length,
+                    'total_subscriber': subscription[i].customer_subscriptions.length,
                     'description': subscription[i].description,
                     'terms': subscription[i].terms
                 });
