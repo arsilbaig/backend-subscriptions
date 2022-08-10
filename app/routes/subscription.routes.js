@@ -62,5 +62,10 @@ module.exports = function (app) {
     [authJwt.verifyToken],
     controller.cancelSubscription
 );
+app.put(
+  '/api/subscription/endSubscription/:id',
+  [authJwt.verifyToken],
+  controller.endSubscription
+);
   // app.post("/api/subscription/create", controller.create);
 };

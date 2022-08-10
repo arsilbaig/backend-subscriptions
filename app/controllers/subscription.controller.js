@@ -97,9 +97,9 @@ exports.getSubscriptionById = async (req, res) => {
 }
 
 
+
 exports.getSubscriptions = (req, res) => {
     const data = [];
-    console.log(req);
     Subscription.findAll({
         where: {
             user_id: req.userId
@@ -359,7 +359,43 @@ exports.getSubscriptionsOrderBySubscriptionId = (req, res) => {
         });
 }
 
+exports.endSubscription = async (req, res) => {
+    try {
+        // Validate
+        let subscriptionId = req.params.id;
+        let subscription = await Subscription.findByPk(subscriptionId);
+        if (!subscription) {
+            // return a response to client
+            res.status(404).json({
+                message: "Not found for deleting a subscription with id = " + subscriptionId,
+                error: "404",
+                type: "subscriptionId"
+            });
+        } else {
+            let updatedObject = {
+                isEnded: 1
+            }
+            let result = await Subscription.update(updatedObject, { returning: true, where: { subscription_id: subscriptionId } });
+            // return the response to client
+            if (!result) {
+                res.status(500).json({
+                    message: "Error -> Can not delete a subscription with id = " + req.params.id,
+                    error: "Id not Exists",
+                    type: "subscriptionId"
+                });
+            }
+            res.status(200).json({
+                message: "Ended successfully a subscription with id = " + subscriptionId
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error -> Can not delete a Make with id = " + req.params.id,
+            error: errorResponse(error.message)
+        });
+    }
 
+}
 exports.cancelSubscription = async (req, res) => {
     try {
         // Validate

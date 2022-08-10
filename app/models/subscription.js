@@ -41,8 +41,12 @@ module.exports = function(sequelize, DataTypes) {
     },
     status: {
       type: DataTypes.BOOLEAN,
-      allowNull: true
+      allowNull: false
     },
+    isEnded: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
   }, {
     sequelize,
     tableName: 'subscription',
