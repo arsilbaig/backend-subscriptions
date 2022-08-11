@@ -29,6 +29,7 @@ exports.create = (req, res) => {
             subscription.description = req.body.description,
             subscription.terms = req.body.terms,
             subscription.status = 0
+            subscription.isEnded = 0
 
         // Save to MySQL database
         Subscription.create(subscription).then(result => {
@@ -180,7 +181,11 @@ exports.exportCustomers = async (req, res) => {
 
 exports.getAllMarketPlace = (req, res) => {
     const data = [];
-    Subscription.findAll()
+    Subscription.findAll({
+        where: {
+            isEnded: 0
+        }
+    })
         .then(subscription => {
             logger.info("Subscription", "getSubscriptions", "Info", "Successfully All Subscriptions");
             for (var i in subscription) {
