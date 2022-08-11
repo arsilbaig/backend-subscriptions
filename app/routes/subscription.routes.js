@@ -17,7 +17,7 @@ module.exports = function (app) {
   );
   app.get(
     '/api/subscription/getSubscriptionById/:id',
-    // [authJwt.verifyToken],
+    [authJwt.verifyToken],
     controller.getSubscriptionById
   );
   app.get(
