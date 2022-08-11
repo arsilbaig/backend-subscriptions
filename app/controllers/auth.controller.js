@@ -777,3 +777,34 @@ exports.getAllCustomers = (req, res) => {
       });
     });
 }
+
+
+exports.switchUser = async (req, res) => {
+  if(req.body.roleId!="" && req.body.status!=""){
+    if(req.body.roleId!=req.body.status){
+      var username= "";
+      if(req.body.status==1){
+        username = "Merchant";
+      }else if(req.body.status==2){
+        username = "Customer";
+      }else{
+        username ="";
+      }
+     await UserRole.update({
+        roleId: req.body.status
+      },{
+        where:{
+          userId: req.userId
+        }
+      }).then(function(updateRole){
+        if(updateRole != null){
+          res.status(200).send({message: "Successfully Switched to "+username, status: req.body.status});
+        }
+      })
+    }else{
+      res.status(400).send({message: "You are already a "+username});
+    }
+  }else{
+    res.status(500).send({message: "Something went wrong"});
+  }
+}

@@ -3,6 +3,7 @@ const {
   authJwt
 } = require("../middleware");
 const controller = require("../controllers/auth.controller");
+const { application } = require("express");
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -20,7 +21,11 @@ module.exports = function (app) {
     ],
     controller.signup
   );
-  
+  app.post(
+    "/api/auth/swithAccount", 
+    [authJwt.verifyToken],
+    controller.switchUser
+    );
   app.get(
     "/users/customer",
     controller.signInWithToken
