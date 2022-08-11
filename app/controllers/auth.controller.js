@@ -370,6 +370,8 @@ exports.authuser = async (req, res) => {
             data: responseData,
           });
         });
+      }else{
+        res.status(400).send({ message: "user account not found" });
       }
     })
   }
