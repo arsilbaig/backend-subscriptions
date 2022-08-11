@@ -781,8 +781,7 @@ exports.getAllCustomers = (req, res) => {
 
 exports.switchUser = async (req, res) => {
   if(req.body.roleId!="" && req.body.status!=""){
-    if(req.body.roleId!=req.body.status){
-      var username= "";
+    var username= "";
       if(parseInt(req.body.status)==1){
         username = "Merchant";
       }else if(parseInt(req.body.status)==2){
@@ -790,6 +789,8 @@ exports.switchUser = async (req, res) => {
       }else{
         username ="";
       }
+    if(req.body.roleId!=req.body.status){
+      
      await UserRole.update({
         roleId: parseInt(req.body.status)
       },{
