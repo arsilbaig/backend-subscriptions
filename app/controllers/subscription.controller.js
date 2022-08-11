@@ -28,8 +28,9 @@ exports.create = (req, res) => {
             subscription.image = req.body.image,
             subscription.description = req.body.description,
             subscription.terms = req.body.terms,
-            subscription.status = 0
-            subscription.isEnded = 0
+            subscription.status = 0,
+            subscription.isEnded = 0,
+            subscription.isDeleted = 0
 
         // Save to MySQL database
         Subscription.create(subscription).then(result => {
@@ -97,13 +98,12 @@ exports.getSubscriptionById = async (req, res) => {
         });
 }
 
-
-
 exports.getSubscriptions = (req, res) => {
     const data = [];
     Subscription.findAll({
         where: {
-            user_id: req.userId
+            user_id: req.userId,
+            isDeleted: 0
           },
         include: [{
             model: CustomerSubscriptions,
@@ -183,7 +183,8 @@ exports.getAllMarketPlace = (req, res) => {
     const data = [];
     Subscription.findAll({
         where: {
-            isEnded: 0
+            isEnded: 0,
+            isDeleted: 0
         }
     })
         .then(subscription => {
@@ -299,6 +300,9 @@ exports.mySubscription = async (req, res) => {
                 user_id : req.userId,
               },
             include: [{
+                where:{ [Op.eq]:{
+                    isDeleted: 0
+                } },
                 model: Subscription,
                 as: "subscription"
             }]
@@ -401,6 +405,42 @@ exports.endSubscription = async (req, res) => {
     }
 
 }
+exports.deleteSubscription = async (req, res) => {
+    try {
+        // Validate
+        let subscriptionId = req.params.id;
+        let subscription = await Subscription.findByPk(subscriptionId);
+        if (!subscription) {
+            // return a response to client
+            res.status(404).json({
+                message: "Not found for deleting a subscription with id = " + subscriptionId,
+                error: "404",
+                type: "subscriptionId"
+            });
+        } else {
+            let updatedObject = {
+                isDeleted: 1
+            }
+            let result = await Subscription.update(updatedObject, { returning: true, where: { subscription_id: subscriptionId } });
+            // return the response to client
+            if (!result) {
+                res.status(500).json({
+                    message: "Error -> Can not delete a subscription with id = " + req.params.id,
+                    error: "Id not Exists",
+                    type: "subscriptionId"
+                });
+            }
+            res.status(200).json({
+                message: "delete successfully a subscription with id = " + subscriptionId
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error -> Can not delete a Make with id = " + req.params.id,
+            error: errorResponse(error.message)
+        });
+    }
+}
 exports.cancelSubscription = async (req, res) => {
     try {
         // Validate
@@ -475,46 +515,3 @@ exports.exportCustomersCSV = async (req, res) => {
         res.status(200).end(csvData);
                 }
     }
-
-
-//     //const fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
-//     let subscribers = [];
-//     try {
-//         // Building export Customers object from upoading request's body
-//         var userIds = req.body.users;
-//         var subsId = parseInt(req.body.subscriptionId);
-//         if (subsId != null) {
-//             for (var i in userIds) {
-//               await  User.findOne({
-//                     where: {
-//                         id: parseInt(userIds[i])
-//                     }
-//                 }).then(function(userdata){
-//                     if(userdata!=null){
-//                         subscribers.push({ 
-//                             'user_id': parseInt(userIds[i]), 
-//                             'subscription_id': subsId,
-//                             'Full Name' : userdata.dataValues.firstname +' '+ userdata.dataValues.lastname,
-//                             'Email or Phone': userdata.dataValues.email? userdata.dataValues.email:userdata.dataValues.country_code +"-"+userdata.dataValues.phone,
-//                             'Business Website': userdata.dataValues.business_website_url?userdata.dataValues.business_website_url:"",
-//                             'Business Email': userdata.dataValues.business_email
-//                         });
-//                     }
-//                 })
-//             }
-//             var filename = ['Users-', Date.now()].join('');
-//             var fields = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
-//             var fieldNames = ['User ID', 'Subscription ID', 'Full Name', 'Email or Phone', 'Business Website', 'Business Email'];
-//             var data = json2csv({ data: subscribers, fields: fields, fieldNames: fieldNames });
-//             res.set('Content-Disposition', ["attachment; filename=", filename, '.csv'].join(''))
-//             res.status(200).send(Buffer.from(data))
-//            // res.end(data);
-//         }
-//     } 
-//     catch (error) {
-//         res.status(500).json({
-//             message: "Fail!",
-//             error: errorResponse(error.message)
-//         });
-//     }
-// }

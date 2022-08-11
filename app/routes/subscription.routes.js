@@ -67,5 +67,10 @@ app.put(
   [authJwt.verifyToken],
   controller.endSubscription
 );
+app.put(
+  '/api/subscription/deleteSubscription/:id',
+  [authJwt.verifyToken],
+  controller.deleteSubscription
+);
   // app.post("/api/subscription/create", controller.create);
 };

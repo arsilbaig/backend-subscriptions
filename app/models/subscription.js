@@ -46,6 +46,11 @@ module.exports = function(sequelize, DataTypes) {
     isEnded: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    isDeleted: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,
