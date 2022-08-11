@@ -29,7 +29,21 @@ exports.signup = async (req, res) => {
   // if (error) return res.status(400).send(errorResponse(error.details[0].message, {}));
   await User.findOne({
     where: {
-      account_id: req.body.walletName,
+      [Op.or]: [
+        {
+          "account_id": {  [Op.eq]: req.body.walletName, }
+        },
+        {
+          [Op.and]: [
+              {
+                "phone": req.body.phone?req.body.phone:""
+              },
+              {
+                "email": req.body.email?req.body.email:""
+              }
+          ]
+        }
+      ]
     }
   }).then(async function (userrow) {
     if (userrow == null) {
