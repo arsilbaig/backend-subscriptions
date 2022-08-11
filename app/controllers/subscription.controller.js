@@ -113,9 +113,9 @@ exports.getSubscriptions = (req, res) => {
             logger.info("Subscription", "getSubscriptions", "Info", "Successfully All Subscriptions");
             for (var i in subscription) {
                 let status_text;
-                if(subscription[i].status==0){
+                if(subscription[i].isEnded==0){
                     status_text = "active";
-                }else if(subscription[i].status==1){
+                }else if(subscription[i].isEnded==1){
                     status_text = "ended";
                 }else{
                     status_text = "draft"
