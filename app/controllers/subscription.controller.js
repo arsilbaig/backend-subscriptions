@@ -300,9 +300,9 @@ exports.mySubscription = async (req, res) => {
                 user_id : req.userId,
               },
             include: [{
-                where:{ [Op.eq]:{
+                where:{
                     isDeleted: 0
-                } },
+                },
                 model: Subscription,
                 as: "subscription"
             }]

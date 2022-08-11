@@ -306,7 +306,7 @@ exports.authuser = async (req, res) => {
       }
     }).then(async function (userExists) {
       if (userExists != null) {
-        if (userExists.dataValues.email != "") {
+        if (userExists.dataValues.email != null) {
           verifier = userExists.dataValues.email;
           emailsend = true;
         } else {
