@@ -17,7 +17,7 @@ module.exports = function (app) {
   );
   app.get(
     '/api/subscription/getSubscriptionById/:id',
-    [authJwt.verifyToken],
+    // [authJwt.verifyToken],
     controller.getSubscriptionById
   );
   app.get(
@@ -36,11 +36,6 @@ module.exports = function (app) {
     controller.getSubscriptionsOrderBySubscriptionId
   );
   
-  app.get(
-    '/api/subscription/getAllMarketPlace',
-    controller.getAllMarketPlace
-  );
-
   app.get(
     '/api/subscription/getAllMarketPlace',
     controller.getAllMarketPlace
