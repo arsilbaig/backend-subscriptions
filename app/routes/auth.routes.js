@@ -49,6 +49,13 @@ module.exports = function (app) {
     controller.profileUpdate
   );
 
+  app.put(
+    "/api/auth/updateMerchant",
+    [authJwt.verifyToken],
+    controller.updateMerchant
+  );
+
+
   app.post("/api/auth/signin", controller.signin);
   app.post("/api/auth/authuser", controller.authuser);
   app.post("/api/auth/impersonate", controller.impersonate);

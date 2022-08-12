@@ -845,3 +845,45 @@ exports.switchUser = async (req, res) => {
     res.status(500).send({message: "Something went wrong"});
   }
 }
+
+exports.updateMerchant = async (req, res) => {
+  if(req.userId &&  req.body.status!=""){
+      let business_name = "";
+      let business_logo = "";
+      let business_website = "";
+
+      if(req.body.business_name != ""){
+        business_name = req.body.business_name
+      }
+      if(req.body.business_logo != ""){
+        business_logo = req.body.business_logo
+      }
+      if(req.body.business_website != ""){
+        business_website = req.body.business_website
+      }
+    await User.update({
+        firstname: business_name,
+        lastname: "",
+        business_website_url: business_website,
+        image_url: business_logo
+      },{
+        where: {
+          id: req.userId
+        }
+      }).then(async function(userupdatedata){
+        if(userupdatedata != null){
+        await UserRole.update({
+            roleId: parseInt(req.body.status)
+          },{
+            where: {
+              userId: req.userId
+            }
+          })
+        }
+        res.status(200).send({ message: "Updated successfully", status: true})
+      })
+    }else{
+      res.status(403).send({message: "You are not authorized to access this url"});
+    }
+
+}
