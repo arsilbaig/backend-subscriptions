@@ -22,6 +22,10 @@ module.exports = function (app) {
     controller.signup
   );
   app.post(
+    "/api/auth/isAccountExists", 
+    controller.isAccountExists
+    );
+  app.post(
     "/api/auth/swithAccount", 
     [authJwt.verifyToken],
     controller.switchUser

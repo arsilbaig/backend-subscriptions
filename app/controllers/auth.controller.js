@@ -778,7 +778,43 @@ exports.getAllCustomers = (req, res) => {
     });
 }
 
+exports.isAccountExists = async (req, res) => {
+  if (req.body.email!= null || req.body.phone!= null) {
+    let checker = "";
+    let query = "";
+    if(req.body.email!=null){
+      checker = req.body.email;
+      query= "email";
+      await  User.findOne({
+        where: {
+          email: checker
+        }
+      }).then(function(userEmailInfo){
+        if(userEmailInfo!= null){
+          res.status(400).send({ message: 'Entered '+ query + ' is already registered with another account', staus: false});
+        }else{
+          res.status(200).send({message: 'No '+ query + ' is associated to any account', status: true})
+        }
+      })
+    }
+    if(req.body.phone!=null){
+      checker = req.body.phone;
+      query= "phone";
+      await  User.findOne({
+        where: {
+          phone: checker
+        }
+      }).then(function(userEmailInfo){
+        if(userEmailInfo!= null){
+          res.status(400).send({ message: 'Entered '+ query + 'is already registered with another account', staus: false});
+        }else{
+          res.status(200).send({message: 'No '+ query + 'is associated to any account', status: true})
+        }
+      })
+    }
 
+  }
+}
 exports.switchUser = async (req, res) => {
   if(req.body.roleId!="" && req.body.status!=""){
     var username= "";
