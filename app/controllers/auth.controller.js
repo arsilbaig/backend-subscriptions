@@ -791,7 +791,7 @@ exports.isAccountExists = async (req, res) => {
         }
       }).then(function(userEmailInfo){
         if(userEmailInfo!= null){
-          res.status(400).send({ message: 'Entered '+ query + ' is already registered with another account', staus: false});
+          res.status(200).send({ message: 'Entered '+ query + ' is already registered with another account', staus: false});
         }else{
           res.status(200).send({message: 'No '+ query + ' is associated to any account', status: true})
         }
@@ -806,7 +806,7 @@ exports.isAccountExists = async (req, res) => {
         }
       }).then(function(userEmailInfo){
         if(userEmailInfo!= null){
-          res.status(400).send({ message: 'Entered '+ query + 'is already registered with another account', staus: false});
+          res.status(200).send({ message: 'Entered '+ query + 'is already registered with another account', staus: false});
         }else{
           res.status(200).send({message: 'No '+ query + 'is associated to any account', status: true})
         }
