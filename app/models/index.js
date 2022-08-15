@@ -32,6 +32,8 @@ db.authuser = require("../models/authuser")(sequelize, DataTypes);
 db.subscription = require("../models/subscription")(sequelize, DataTypes);
 db.subscription_order = require("../models/subscription_order")(sequelize, DataTypes);
 db.customer_subscriptions = require("../models/customer_subscriptions")(sequelize, DataTypes);
+db.card_detail = require("../models/card_detail")(sequelize, DataTypes);
+db.currency = require("../models/currency")(sequelize, DataTypes);
 
 
 
@@ -52,6 +54,14 @@ db.user.belongsToMany(db.role, {
   through: "user_roles",
   foreignKey: "userId",
   otherKey: "roleId"
+});
+db.card_detail.belongsTo(db.user, { 
+  as: "user", 
+  foreignKey: "user_id"
+});
+db.user.hasMany(db.card_detail, { 
+  as: "card_details", 
+  foreignKey: "user_id"
 });
 
 db.subscription_order.belongsTo(db.subscription, { as: "subscription", foreignKey: "subscription_id"});

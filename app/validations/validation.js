@@ -41,8 +41,19 @@ const saveSubsriptionValidations = (data) => {
     });
     return schema.validate(data);
 };
-
+const saveCardValidations = (data) => {
+    const schema = Joi.object({ 
+        card_name: Joi.string().required(),
+        card_number: Joi.string().max(16).required(),
+        expiry_month: Joi.number().required(),
+        expiry_year: Joi.number().required(),
+        cvc: Joi.number().required(),
+        zip_code: Joi.string().required(),
+    })
+    return schema.validate(data);
+};
 module.exports = {
     saveUserValidations,
     saveSubsriptionValidations,
+    saveCardValidations,
 }

@@ -59,6 +59,7 @@ Role.findAll().then(function (res) {
 // routes
 require('./app/routes/auth.routes')(app);
 require('./app/routes/subscription.routes')(app);
+require('./app/routes/cards.routes')(app);
 
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(httpsOptions, app);

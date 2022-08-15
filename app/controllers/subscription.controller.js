@@ -14,8 +14,6 @@ const json2csv = require('json2csv').parse;
 exports.create = (req, res) => {
     let subscription = {};
 
-   
-
     try {
         // Validate
         const { error } = saveSubsriptionValidations(req.body);
