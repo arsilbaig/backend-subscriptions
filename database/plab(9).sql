@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 15, 2022 at 03:21 PM
+-- Generation Time: Aug 15, 2022 at 05:14 PM
 -- Server version: 8.0.18
 -- PHP Version: 7.3.11
 
@@ -58,6 +58,7 @@ CREATE TABLE `card_detail` (
   `expiry_date` varchar(10) NOT NULL,
   `cvc` int(3) NOT NULL,
   `zip_code` varchar(10) NOT NULL,
+  `isActive` int(1) DEFAULT '0',
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -66,8 +67,9 @@ CREATE TABLE `card_detail` (
 -- Dumping data for table `card_detail`
 --
 
-INSERT INTO `card_detail` (`card_detail_id`, `user_id`, `card_name`, `card_number`, `expiry_date`, `cvc`, `zip_code`, `createdAt`, `updatedAt`) VALUES
-(1, 2, 'Raza Umer', '1111111111111114', '052023', 123, '54000', '2022-08-15 10:25:04', '2022-08-15 10:25:04');
+INSERT INTO `card_detail` (`card_detail_id`, `user_id`, `card_name`, `card_number`, `expiry_date`, `cvc`, `zip_code`, `isActive`, `createdAt`, `updatedAt`) VALUES
+(1, 2, 'Raza Umer', '1111111111111114', '052023', 123, '54000', 0, '2022-08-15 10:25:04', '2022-08-15 10:25:04'),
+(3, 2, 'Raza Umer', '1111111111111112', '052023', 123, '54000', 0, '2022-08-15 16:38:32', '2022-08-15 16:38:32');
 
 -- --------------------------------------------------------
 
@@ -117,8 +119,7 @@ CREATE TABLE `customer_subscriptions` (
 INSERT INTO `customer_subscriptions` (`customer_subscription_id`, `subscription_id`, `user_id`, `quantity`, `createdAt`, `updatedAt`) VALUES
 (1, 1, 3, 1, '2022-08-11 13:32:34', '2022-08-11 13:32:34'),
 (2, 2, 3, 1, '2022-08-11 13:33:14', '2022-08-11 13:33:14'),
-(3, 1, 2, 1, '2022-08-11 14:06:37', '2022-08-11 14:06:37'),
-(4, 3, 2, 1, '2022-08-11 14:22:20', '2022-08-11 14:22:20');
+(5, 1, 2, 1, '2022-08-15 16:23:43', '2022-08-15 16:23:43');
 
 -- --------------------------------------------------------
 
@@ -136,6 +137,13 @@ CREATE TABLE `payment_transactions` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `payment_transactions`
+--
+
+INSERT INTO `payment_transactions` (`payment_id`, `user_id`, `subscription_id`, `card_detail_id`, `amount`, `currency_id`, `createdAt`, `updatedAt`) VALUES
+(1, 2, 1, 1, '24.00', 1, '2022-08-15 16:23:43', '2022-08-15 16:23:43');
 
 -- --------------------------------------------------------
 
@@ -350,7 +358,7 @@ ALTER TABLE `authuser`
 -- AUTO_INCREMENT for table `card_detail`
 --
 ALTER TABLE `card_detail`
-  MODIFY `card_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `card_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `currency`
@@ -362,13 +370,13 @@ ALTER TABLE `currency`
 -- AUTO_INCREMENT for table `customer_subscriptions`
 --
 ALTER TABLE `customer_subscriptions`
-  MODIFY `customer_subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `customer_subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `payment_transactions`
 --
 ALTER TABLE `payment_transactions`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `subscription`
