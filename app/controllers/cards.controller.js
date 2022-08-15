@@ -12,22 +12,34 @@ exports.create = (req, res) => {
         // Validate
         const { error } = saveCardValidations(req.body);
         if (error) return res.status(400).send(errorResponse(error.details[0].message, {}));
-        // Building Subscriptin object from upoading request's body
-            cards.user_id = req.userId,
-            cards.card_name = req.body.card_name,
-            cards.card_number = req.body.card_number,
-            cards.expiry_date = req.body.expiry_month + req.body.expiry_year,
-            cards.cvc = req.body.cvc,
-            cards.zip_code = req.body.zip_code,
-        // Save to MySQL database
-        Cards.create(cards).then(result => {
-            logger.info('Cards added with card_id', req.userId + ' has been successfully', ' at ', new Date().toJSON());
-            // send uploading message to client
-            res.status(200).json({
-                message: "Cards added Successfully !",
-                cards: successResponse(result),
-            });
-        });
+
+        Cards.findOne({
+            where: {
+                card_number: req.body.card_number
+            }
+        }).then(function(isCardExists){
+            if(isCardExists == null){
+                
+                // Building Subscriptin object from upoading request's body
+                    cards.user_id = req.userId,
+                    cards.card_name = req.body.card_name,
+                    cards.card_number = req.body.card_number,
+                    cards.expiry_date = req.body.expiry_month + req.body.expiry_year,
+                    cards.cvc = req.body.cvc,
+                    cards.zip_code = req.body.zip_code,
+                // Save to MySQL database
+                Cards.create(cards).then(result => {
+                    logger.info('Cards added with card_id', req.userId + ' has been successfully', ' at ', new Date().toJSON());
+                    // send uploading message to client
+                    res.status(200).json({
+                        message: "Cards added Successfully !",
+                        cards: successResponse(result),
+                    });
+                });
+            }else{
+                res.status(400).send({ message: "You are not allowed to add this card Number.", status: false})
+            }
+        })
     } catch (error) {
 
         res.status(500).json({
