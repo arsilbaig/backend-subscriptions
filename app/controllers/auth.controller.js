@@ -481,6 +481,7 @@ exports.signInWithToken = async (req, res) => {
             id: user.id,
             from: 'live-db',
             role: rolename,
+            isMerchant: user.isMerchant,
             walletName: user.account_id,
             displayName: user.firstname + ' ' + user.lastname,
             image_url: user.image_url,
@@ -865,7 +866,8 @@ exports.updateMerchant = async (req, res) => {
         firstname: business_name,
         lastname: "",
         business_website_url: business_website,
-        image_url: business_logo
+        image_url: business_logo,
+        isMerchant: 1
       },{
         where: {
           id: req.userId
