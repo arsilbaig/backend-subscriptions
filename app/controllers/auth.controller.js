@@ -258,6 +258,7 @@ exports.signin = (req, res) => {
                       id: user.id,
                       from: 'live-db',
                       role: authorities[0],
+                      isMerchant: user.isMerchant,
                       walletName: user.account_id,
                       displayName: user.firstname + ' ' + user.lastname,
                       image_url: user.image_url,
