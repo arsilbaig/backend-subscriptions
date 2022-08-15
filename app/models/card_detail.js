@@ -34,6 +34,11 @@ module.exports = function(sequelize, DataTypes) {
     zip_code: {
       type: DataTypes.STRING(10),
       allowNull: false
+    },
+    isActive: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,

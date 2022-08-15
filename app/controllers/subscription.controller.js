@@ -3,6 +3,7 @@ const Subscription = db.subscription;
 const SubscriptionOrder = db.subscription_order;
 const CustomerSubscriptions = db.customer_subscriptions;
 const PaymentTransactions = db.payment_transactions;
+const Cards = db.card_detail;
 const User =  db.user;
 const UserRole = db.user_roles;
 const { successResponse, errorResponse } = require('../common/response');
@@ -224,42 +225,52 @@ exports.buySubscription = async (req, res) => {
             }
         }).then(async function(subscription_row){
             if(subscription_row == null){
-                // Save to MySQL database
-              await  CustomerSubscriptions.create(customerCubscriptions).then(async result => {
+                // checking if card is allowd 
+                const isCardAllowed = await checkCardStatus(req.body.card_detail_id);
+                
+                if(!isCardAllowed){
+                        // Save to MySQL database
+                await  CustomerSubscriptions.create(customerCubscriptions).then(async result => {
 
-                    logger.info('Subscription Orders Created', req.userId + ' has been susbcribe successfully', ' at ', new Date().toJSON());
-                    // send uploading message to client
-                  await  PaymentTransactions.create({
-                        user_id: req.userId,
-                        subscription_id: req.body.subscription_id,
-                        card_detail_id: req.body.card_detail_id,
-                        amount: req.body.withdrawAmount,
-                        currency_id : req.body.currency_id
-                    })
-                  await  CustomerSubscriptions.findAll({
-                        where: {
+                        logger.info('Subscription Orders Created', req.userId + ' has been susbcribe successfully', ' at ', new Date().toJSON());
+                        // send uploading message to client
+                    await  PaymentTransactions.create({
+                            user_id: req.userId,
                             subscription_id: req.body.subscription_id,
-                            user_id : req.userId
-                        },
-                        include: [{
-                            model: Subscription,
-                            as: "subscription"
-                        }]
-                    }).then(val => {
-                        for (var i in val) {
-                            data.push({
-                                'subscriptionId': val[i].subscription.dataValues.subscription_id,
-                                'sub_name': val[i].subscription.dataValues.sub_name,
-                                'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
-                                'frequency': val[i].subscription.dataValues.frequency,
-                                'image': val[i].subscription.dataValues.image
+                            card_detail_id: req.body.card_detail_id,
+                            amount: req.body.withdrawAmount,
+                            currency_id : req.body.currency_id
+                        })
+                    await  CustomerSubscriptions.findAll({
+                            where: {
+                                subscription_id: req.body.subscription_id,
+                                user_id : req.userId
+                            },
+                            include: [{
+                                model: Subscription,
+                                as: "subscription"
+                            }]
+                        }).then(val => {
+                            for (var i in val) {
+                                data.push({
+                                    'subscriptionId': val[i].subscription.dataValues.subscription_id,
+                                    'sub_name': val[i].subscription.dataValues.sub_name,
+                                    'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
+                                    'frequency': val[i].subscription.dataValues.frequency,
+                                    'image': val[i].subscription.dataValues.image
+                                });
+                            }
+                            res.status(200).json({
+                                message: "Successfull Transaction ",
+                                subscription: data,
                             });
-                        }
-                        res.status(200).json({
-                            subscription: data,
-                        });
-                    })
-                });
+                        })
+                    });
+                }else{
+                    res.status(400).json({
+                        error: "Failed Transaction",
+                    });
+                }
             }else{
                 res.status(400).json({
                     error: "You have already subscribed this Subscription.",
@@ -275,6 +286,21 @@ exports.buySubscription = async (req, res) => {
         });
     }
 }
+const checkCardStatus = async (card_id) => {
+    return new Promise(async function (resolve, reject) {
+      await Cards.findOne({
+        where: {
+          card_detail_id: card_id
+        }
+      }).then(function (cardInfo) {
+        if (cardInfo != null) {
+          resolve(cardInfo.dataValues.isActive?true:false)
+        } else {
+          resolve(false);
+        }
+      })
+    })
+  }
 const getUserRole = async (userId) => {
     return new Promise(async function (resolve, reject) {
       await UserRole.findOne({
