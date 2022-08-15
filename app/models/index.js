@@ -34,6 +34,7 @@ db.subscription_order = require("../models/subscription_order")(sequelize, DataT
 db.customer_subscriptions = require("../models/customer_subscriptions")(sequelize, DataTypes);
 db.card_detail = require("../models/card_detail")(sequelize, DataTypes);
 db.currency = require("../models/currency")(sequelize, DataTypes);
+db.payment_transactions = require("../models/payment_transactions")(sequelize, DataTypes);
 
 
 

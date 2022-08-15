@@ -2,6 +2,7 @@ const db = require("../models");
 const Subscription = db.subscription;
 const SubscriptionOrder = db.subscription_order;
 const CustomerSubscriptions = db.customer_subscriptions;
+const PaymentTransactions = db.payment_transactions;
 const User =  db.user;
 const UserRole = db.user_roles;
 const { successResponse, errorResponse } = require('../common/response');
@@ -228,6 +229,13 @@ exports.buySubscription = async (req, res) => {
 
                     logger.info('Subscription Orders Created', req.userId + ' has been susbcribe successfully', ' at ', new Date().toJSON());
                     // send uploading message to client
+                  await  PaymentTransactions.create({
+                        user_id: req.userId,
+                        subscription_id: req.body.subscription_id,
+                        card_detail_id: req.body.card_detail_id,
+                        amount: req.body.withdrawAmount,
+                        currency_id : req.body.currency_id
+                    })
                   await  CustomerSubscriptions.findAll({
                         where: {
                             subscription_id: req.body.subscription_id,
