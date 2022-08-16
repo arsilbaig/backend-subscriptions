@@ -20,7 +20,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     withdraw_amount: {
-      type: DataTypes.DECIMAL(15,2),
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     frequency: {

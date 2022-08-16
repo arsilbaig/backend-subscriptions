@@ -32,7 +32,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     amount: {
-      type: DataTypes.DECIMAL(15,2),
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     currency_id: {

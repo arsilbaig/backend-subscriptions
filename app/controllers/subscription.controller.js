@@ -49,6 +49,25 @@ exports.create = (req, res) => {
         });
     }
 }
+
+
+const getMerchantLogo = async (user_id) =>{
+    return new Promise(async function(resolve, reject){
+    await User.findOne({
+        attributes: ['image_url'],
+        where:{
+            id: user_id
+        }
+    }).then(function(userDataInfo){
+        if(userDataInfo!=null){
+            resolve(userDataInfo.dataValues.image_url);
+        }else{
+            resolve(false);
+        }
+    })
+})
+}
+
 const getSubsStatus = async (user_id,subscription_id) =>{
     return new Promise(async function(resolve, reject){
     await CustomerSubscriptions.findOne({
@@ -327,18 +346,20 @@ exports.mySubscription = async (req, res) => {
             });
         } else if (roleid && roleid == 2) {
            // send uploading message to client
-        await   CustomerSubscriptions.findAll({
+        await CustomerSubscriptions.findAll({
             where: {
                 user_id : req.userId,
               },
-            include: [{
+            include: [
+                {
                 where:{
                     isDeleted: 0
                 },
                 model: Subscription,
                 as: "subscription"
-            }]
-        }).then(val => {
+                }
+        ]
+        }).then(async val => {
             for (var i in val) {
                 let status_text;
                 if(val[i].subscription.dataValues.status==0){
@@ -346,12 +367,14 @@ exports.mySubscription = async (req, res) => {
                 }else if(val[i].subscription.dataValues.status==1){
                     status_text = "cancelled";
                 }
+                const MerchantLogo = await getMerchantLogo(val[i].subscription.dataValues.user_id);
                 data.push({
                     'subscriptionId': val[i].subscription.dataValues.subscription_id,
                     'sub_name': val[i].subscription.dataValues.sub_name,
                     'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
                     'frequency': val[i].subscription.dataValues.frequency,
                     'image': val[i].subscription.dataValues.image,
+                    'merchantLogo' : MerchantLogo?MerchantLogo:"",
                     'terms': val[i].subscription.dataValues.terms,
                     'description': val[i].subscription.dataValues.description,
                     'status': status_text
