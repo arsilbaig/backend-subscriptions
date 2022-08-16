@@ -56,7 +56,7 @@ exports.getCardsByUserId = async (req, res) => {
     }
    }).then(function(userCardsInfo){
         if(userCardsInfo.length>0){
-            res.status(200).send({ info: userCardsInfo});
+            res.status(200).send({userCardsInfo});
         }else{
             res.status(400).send({error: "No Card available for payment processing"})
         }
