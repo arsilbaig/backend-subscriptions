@@ -47,6 +47,12 @@ exports.signup = async (req, res) => {
     }
   }).then(async function (userrow) {
     if (userrow == null) {
+      let iAmMerchant = 0;
+      if(req.body.role==1){
+        iAmMerchant = 1;
+      }else{
+        iAmMerchant = 0;
+      }
       User.create({
         firstname: req.body.firstName,
         lastname: req.body.lastName,
@@ -58,6 +64,7 @@ exports.signup = async (req, res) => {
         business_website_url: req.body.business_website_url,
         phone: req.body.phone,
         role: req.body.role,
+        isMerchant: iAmMerchant,
         status: 0,
       })
         .then(user => {
@@ -89,6 +96,7 @@ exports.signup = async (req, res) => {
                     id: user.id,
                     from: 'live-db',
                     role: rolename,
+                    isMerchant: user.isMerchant,
                     walletName: req.body.walletName,
                     displayName:  req.body.firstName + ' ' + req.body.lastName,
                     image_url: req.body.image_url?req.body.image_url:"",
@@ -118,6 +126,7 @@ exports.signup = async (req, res) => {
                   id: user.id,
                   from: 'live-db',
                   role: rolename,
+                  isMerchant: user.isMerchant,
                   walletName: req.body.walletName,
                   displayName:  req.body.firstName + ' ' + req.body.lastName,
                   image_url: req.body.image_url?req.body.image_url:"",
