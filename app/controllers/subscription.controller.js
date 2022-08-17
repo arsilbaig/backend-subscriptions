@@ -431,7 +431,7 @@ exports.endSubscription = async (req, res) => {
         if (!subscription) {
             // return a response to client
             res.status(404).json({
-                message: "Not found for deleting a subscription with id = " + subscriptionId,
+                message: "Not found for ending a subscription with id = " + subscriptionId,
                 error: "404",
                 type: "subscriptionId"
             });
@@ -443,7 +443,7 @@ exports.endSubscription = async (req, res) => {
             // return the response to client
             if (!result) {
                 res.status(500).json({
-                    message: "Error -> Can not delete a subscription with id = " + req.params.id,
+                    message: "Error -> Can not end a subscription with id = " + req.params.id,
                     error: "Id not Exists",
                     type: "subscriptionId"
                 });
@@ -454,7 +454,46 @@ exports.endSubscription = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({
-            message: "Error -> Can not delete a Make with id = " + req.params.id,
+            message: "Error -> Can not end a subscription with id = " + req.params.id,
+            error: errorResponse(error.message)
+        });
+    }
+
+}
+
+
+exports.activeSubscription = async (req, res) => {
+    try {
+        // Validate
+        let subscriptionId = req.params.id;
+        let subscription = await Subscription.findByPk(subscriptionId);
+        if (!subscription) {
+            // return a response to client
+            res.status(404).json({
+                message: "Not found for activating a subscription with id = " + subscriptionId,
+                error: "404",
+                type: "subscriptionId"
+            });
+        } else {
+            let updatedObject = {
+                isEnded: 0
+            }
+            let result = await Subscription.update(updatedObject, { returning: true, where: { subscription_id: subscriptionId } });
+            // return the response to client
+            if (!result) {
+                res.status(500).json({
+                    message: "Error -> Can not activate a subscription with id = " + req.params.id,
+                    error: "Id not Exists",
+                    type: "subscriptionId"
+                });
+            }
+            res.status(200).json({
+                message: "Activated successfully a subscription with id = " + subscriptionId
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error -> Can not activate a Subscription with id = " + req.params.id,
             error: errorResponse(error.message)
         });
     }
@@ -491,7 +530,7 @@ exports.deleteSubscription = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({
-            message: "Error -> Can not delete a Make with id = " + req.params.id,
+            message: "Error -> Can not delete a Subscription with id = " + req.params.id,
             error: errorResponse(error.message)
         });
     }
