@@ -436,8 +436,17 @@ exports.endSubscription = async (req, res) => {
                 type: "subscriptionId"
             });
         } else {
+            let subscriptionStatus = 0;
+            let statustext = "";
+            if(subscription.dataValues.isEnded == 1){
+                subscriptionStatus = 0;
+                statustext ="Activated";
+            }else{
+                subscriptionStatus = 1;
+                statustext ="Ended";
+            }
             let updatedObject = {
-                isEnded: 1
+                isEnded: subscriptionStatus
             }
             let result = await Subscription.update(updatedObject, { returning: true, where: { subscription_id: subscriptionId } });
             // return the response to client
@@ -449,7 +458,7 @@ exports.endSubscription = async (req, res) => {
                 });
             }
             res.status(200).json({
-                message: "Ended successfully a subscription with id = " + subscriptionId
+                message: statustext+ " successfully a subscription with id = " + subscriptionId
             });
         }
     } catch (error) {
