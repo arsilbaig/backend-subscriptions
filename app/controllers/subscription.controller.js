@@ -239,10 +239,18 @@ exports.buySubscription = async (req, res) => {
         customerCubscriptions.quantity = 1,
         //checking if customer already subscribed
       await  CustomerSubscriptions.findOne({
-            where: {
-                subscription_id: req.body.subscription_id,
-                user_id : req.userId
-            }
+                where: {
+                    subscription_id: req.body.subscription_id,
+                    user_id : req.userId
+                },
+                include: [{
+                    model: Subscription,
+                    as: "subscription",
+                    where : {
+                        status: 0
+                    }
+
+                }]
         }).then(async function(subscription_row){
             if(subscription_row == null){
                 // checking if card is allowd 
