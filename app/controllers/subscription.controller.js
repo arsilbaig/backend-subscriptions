@@ -274,8 +274,7 @@ exports.buySubscription = async (req, res) => {
                             isActive: 1,
                         },{
                             where : {
-                                subscription_id: req.body.subscription_id,
-                                status: 0
+                                subscription_id: req.body.subscription_id
                             }
                         })
                     await  CustomerSubscriptions.findAll({
