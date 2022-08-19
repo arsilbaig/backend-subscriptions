@@ -97,6 +97,7 @@ exports.getSubscriptionById = async (req, res) => {
                 description: subscription.dataValues.description,
                 frequency: subscription.dataValues.frequency,
                 status: getStatus?getStatus:subscription.dataValues.status,
+                isActive: subscription.dataValues.isActive,
                 image: subscription.dataValues.image,
                 sub_name: subscription.dataValues.sub_name,
                 subscription_id: subscription.dataValues.subscription_id,
