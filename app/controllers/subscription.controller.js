@@ -259,6 +259,14 @@ exports.buySubscription = async (req, res) => {
                             card_detail_id: req.body.card_detail_id,
                             amount: req.body.withdrawAmount,
                             currency_id : req.body.currency_id
+                        });
+                        await Subscription.update({
+                            isActive: 1,
+                        },{
+                            where : {
+                                subscription_id: req.body.subscription_id,
+                                status: 0
+                            }
                         })
                     await  CustomerSubscriptions.findAll({
                             where: {
@@ -558,7 +566,8 @@ exports.cancelSubscription = async (req, res) => {
             });
         } else {
             let updatedObject = {
-                status: "1"
+                status: "1",
+                isActive: 0
             }
             let result = await Subscription.update(updatedObject, { returning: true, where: { subscription_id: subscriptionId } });
             // return the response to client

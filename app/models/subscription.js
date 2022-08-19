@@ -43,6 +43,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
+    isActive: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
+    },
     isEnded: {
       type: DataTypes.INTEGER,
       allowNull: false
