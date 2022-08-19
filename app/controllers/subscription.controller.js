@@ -356,7 +356,7 @@ const getUserRole = async (userId) => {
 exports.mySubscription = async (req, res) => {
     const data = [];
     try {
-        const roleid = await getUserRole(1);
+        const roleid = await getUserRole(req.userId);
         
         if (roleid && roleid == 1) {
             res.status(400).json({
@@ -367,7 +367,7 @@ exports.mySubscription = async (req, res) => {
         await CustomerSubscriptions.findAll({
             attributes:['isActive','customer_subscription_id'],
             where: {
-                user_id : 1,
+                user_id : req.userId,
               },
             include: [
                 {
