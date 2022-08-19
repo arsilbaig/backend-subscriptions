@@ -568,7 +568,7 @@ exports.cancelSubscription = async (req, res) => {
     try {
         // Validate
         let subscriptionId = req.params.id;
-        let csid = parseInt(req.body.customer_subscription_id);
+        let csid = parseInt(req.params.csid);
         let subscription = await Subscription.findByPk(subscriptionId);
         if (!subscription) {
             // return a response to client

@@ -53,7 +53,7 @@ module.exports = function (app) {
     controller.buySubscription
   );
   app.delete(
-    '/api/subscription/cancelSubscription/:id',
+    '/api/subscription/cancelSubscription/:id/:csid/',
     [authJwt.verifyToken],
     controller.cancelSubscription
 );
