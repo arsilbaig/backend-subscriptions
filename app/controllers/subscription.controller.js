@@ -237,6 +237,7 @@ exports.buySubscription = async (req, res) => {
         customerCubscriptions.user_id = req.userId,
         customerCubscriptions.subscription_id = req.body.subscription_id,
         customerCubscriptions.quantity = 1,
+        customerCubscriptions.isActive = 1,
         //checking if customer already subscribed
       await  CustomerSubscriptions.findOne({
                 where: {
@@ -355,7 +356,7 @@ const getUserRole = async (userId) => {
 exports.mySubscription = async (req, res) => {
     const data = [];
     try {
-        const roleid = await getUserRole(req.userId);
+        const roleid = await getUserRole(1);
         
         if (roleid && roleid == 1) {
             res.status(400).json({
@@ -364,8 +365,9 @@ exports.mySubscription = async (req, res) => {
         } else if (roleid && roleid == 2) {
            // send uploading message to client
         await CustomerSubscriptions.findAll({
+            attributes:['isActive','customer_subscription_id'],
             where: {
-                user_id : req.userId,
+                user_id : 1,
               },
             include: [
                 {
@@ -379,13 +381,14 @@ exports.mySubscription = async (req, res) => {
         }).then(async val => {
             for (var i in val) {
                 let status_text;
-                if(val[i].subscription.dataValues.status==0){
+                if(val[i].dataValues.isActive==1){
                     status_text = "active";
-                }else if(val[i].subscription.dataValues.status==1){
+                }else if(val[i].dataValues.isActive==0){
                     status_text = "cancelled";
                 }
                 const MerchantLogo = await getMerchantLogo(val[i].subscription.dataValues.user_id);
                 data.push({
+                    'customer_subscription_id': val[i].dataValues.customer_subscription_id,
                     'subscriptionId': val[i].subscription.dataValues.subscription_id,
                     'sub_name': val[i].subscription.dataValues.sub_name,
                     'withdraw_amount': val[i].subscription.dataValues.withdraw_amount,
@@ -565,6 +568,7 @@ exports.cancelSubscription = async (req, res) => {
     try {
         // Validate
         let subscriptionId = req.params.id;
+        let csid = req.body.customer_subscription_id;
         let subscription = await Subscription.findByPk(subscriptionId);
         if (!subscription) {
             // return a response to client
@@ -580,6 +584,14 @@ exports.cancelSubscription = async (req, res) => {
             }
             let result = await Subscription.update(updatedObject, { returning: true, where: { subscription_id: subscriptionId } });
             // return the response to client
+            await CustomerSubscriptions.update({
+                isActive: 0
+            },{
+                where : {
+                    customer_subscription_id: csid,
+                    subscription_id: subscriptionId
+                }
+            })
             if (!result) {
                 res.status(500).json({
                     message: "Error -> Can not delete a subscription with id = " + req.params.id,
